@@ -1,0 +1,7 @@
+/* custom_module/css/custom_styles.css */
+.email-box {
+  background-color: #f0f0f0; /* Light gray background */
+  padding: 10px; /* Some padding for better appearance */
+  border-radius: 5px; /* Rounded corners */
+  margin-top: 10px; /* Some margin at the top */
+}

@@ -1,0 +1,19 @@
+uuid: f5ef21b5-c20e-43fe-9807-4bcca32a05fa
+langcode: en-gb
+status: true
+dependencies:
+  config:
+    - block_content.type.block_gallery
+    - field.storage.block_content.field_sub_title
+id: block_content.block_gallery.field_sub_title
+field_name: field_sub_title
+entity_type: block_content
+bundle: block_gallery
+label: 'Sub title'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

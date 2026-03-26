@@ -1,0 +1,55 @@
+campaign_winner_selection.upload_campaign_data:
+  title: 'Campaign Contest'
+  description: 'Manage campaign data uploads'
+  parent: system.admin_config
+  route_name: campaign_winner_selection.upload_campaign_data
+  weight: 90
+  menu_name: admin
+  options:
+    attributes:
+      class: ['admin-menu-link']
+
+campaign_winner_selection.select_winners_form:
+  title: 'Select Campaign Winners'
+  description: 'Select winners for the campaign'
+  parent: campaign_winner_selection.upload_campaign_data
+  route_name: campaign_winner_selection.select_winners_form
+  weight: 100
+  menu_name: admin
+  options:
+    attributes:
+      class: ['admin-menu-link']
+
+campaign_winner_selection.send_email_to_winners:
+  title: 'Send Email To Winners'
+  description: 'Send Email to campaign winners'
+  parent: campaign_winner_selection.upload_campaign_data
+  route_name: campaign_winner_selection.send_email_to_winners
+  weight: 105
+  menu_name: admin
+  options:
+    attributes:
+      class: ['admin-menu-link']
+
+
+campaign_winner_selection.upload_users:
+  title: 'Upload Users'
+  description: 'Add users for the campaign'
+  parent: campaign_winner_selection.upload_campaign_data
+  route_name: campaign_winner_selection.upload_users
+  weight: 5
+  menu_name: admin
+  options:
+    attributes:
+      class: ['admin-menu-link']
+
+campaign_winner_selection.upload_coupon_codes:
+  title: 'Upload Coupon Code'
+  description: 'Add coupon codes for the campaign'
+  parent: campaign_winner_selection.upload_campaign_data
+  route_name: campaign_winner_selection.upload_coupon_codes
+  weight: 6
+  menu_name: admin
+  options:
+    attributes:
+      class: ['admin-menu-link']

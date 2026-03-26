@@ -1,0 +1,5 @@
+name: 'Custom Access Prodact'
+type: module
+description: 'Defines Custom access for Rest endpoints and Menu items'
+package: Custom
+core_version_requirement: ^10 || ^11

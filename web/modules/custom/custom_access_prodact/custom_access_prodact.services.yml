@@ -1,0 +1,11 @@
+services:
+  custom_access_prodact.custom_service:
+    class: Drupal\custom_access_prodact\Access\CaptainAccessCheck
+    arguments: []
+    tags:
+      - { name: access_check }
+
+  custom_access_prodact.twig_extension:
+    class: Drupal\custom_access_prodact\Twig\CustomTwigExtension
+    tags:
+      - { name: twig.extension }

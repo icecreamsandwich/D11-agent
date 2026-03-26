@@ -1,0 +1,18 @@
+<?php 
+
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_theme().
+ */
+function custom_access_prodact_theme($existing, $type, $theme, $path) {
+  return [
+    'custom_page' => [
+      'variables' => ['data' => NULL],
+      'template' => 'custom-page', // maps to templates/custom-page.html.twig
+      'path' => \Drupal::service('extension.path.resolver')->getPath('module', 'custom_access_prodact') . '/templates',
+    ],
+
+  ];
+}

@@ -1,0 +1,57 @@
+campaign_winner_selection.upload_campaign_data:
+  path: '/admin/config/campaign/upload-data'
+  defaults:
+    _title: 'Campaign Contest'
+    _controller: '\Drupal\system\Controller\SystemController::systemAdminMenuBlockPage'
+  options:
+    _admin_route: TRUE
+  requirements:
+    _permission: 'administer site configuration'
+    
+campaign_winner_selection.upload_users:
+  path: '/admin/config/campaign/upload-users'
+  defaults:
+    _controller: '\Drupal\campaign_winner_selection\Controller\CampaignFilesRedirectController::redirectToWebformUploadUsers'
+    _title: 'Upload Users'
+  options:
+    _admin_route: TRUE
+  requirements:
+    _permission: 'administer site configuration'
+
+campaign_winner_selection.upload_coupon_codes:
+  path: '/admin/config/campaign/upload-coupon-code'
+  defaults:
+    _controller: '\Drupal\campaign_winner_selection\Controller\CampaignFilesRedirectController::redirectToWebform'
+    _title: 'Upload Coupon Codes'
+  options:
+    _admin_route: TRUE
+  requirements:
+    _permission: 'administer site configuration'
+
+campaign_winner_selection.select_winners_form:
+  path: '/admin/config/campaign/select-winners'
+  defaults:
+    _form: '\Drupal\campaign_winner_selection\Form\SelectWinnersForm'
+    _title: 'Select Campaign Winners'
+  options:
+    _admin_route: TRUE
+  requirements:
+    _permission: 'administer site configuration'
+
+campaign_winner_selection.send_email_to_winners:
+  path: '/admin/config/campaign/send-voucher-code'
+  defaults:
+    _form: '\Drupal\campaign_winner_selection\Form\SendEmailForm'
+    _title: 'Send Email To Winners'
+  options:
+    _admin_route: TRUE
+  requirements:
+    _permission: 'administer site configuration'
+    
+campaign_winner_selection.confirm_form:
+  path: '/campaign/confirm-form'
+  defaults:
+    _form: '\Drupal\campaign_winner_selection\Form\ConfirmForm'
+    _title: 'Confirm Form'
+  requirements:
+    _permission: 'access content'

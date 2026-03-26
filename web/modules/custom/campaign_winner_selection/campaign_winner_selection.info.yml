@@ -1,0 +1,8 @@
+name: 'Campaign Winner Selection'
+type: module
+description: 'Selecting Winners for a particular campaign and send them vouchers by Email.'
+package: Custom
+core_version_requirement: ^9.5 || ^10 || ^11
+dependencies:
+  - drupal:taxonomy
+  - webform:webform

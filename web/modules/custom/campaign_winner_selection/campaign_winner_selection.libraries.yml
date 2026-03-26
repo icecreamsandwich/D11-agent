@@ -1,0 +1,6 @@
+# custom_module.libraries.yml
+custom_styles:
+  version: 1.x
+  css:
+    theme:
+      css/custom_styles.css: {}

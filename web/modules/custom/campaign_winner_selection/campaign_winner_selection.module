@@ -1,0 +1,923 @@
+<?php
+
+/**
+ * @file
+ * Primary module hooks for campaign_winner_selection module.
+ */
+
+use Drupal\taxonomy\Entity\Term;
+use Drupal\webform\Entity\WebformSubmission;
+use Drupal\webform\WebformSubmissionInterface;
+
+/**
+ * Implements hook_webform_submission_insert().
+ */
+function campaign_winner_selection_webform_submission_insert(WebformSubmissionInterface $submission) {
+  // Load the submitted data.
+  $data = $submission->getData();
+  $webform_id = $submission->getWebform()->id();
+
+  // Process only for the coupon code upload webform.
+  if ($webform_id == 'campaign_upload_coupon_codes') {
+    // Assuming coupons_csv' are the fields in the webform.
+    // managed_file fields return an array of file IDs.
+    $coupons_file_id = $data['coupon_codes'];
+
+    // Load file entities.
+    $coupons_file = \Drupal::entityTypeManager()->getStorage('file')->load($coupons_file_id);
+
+    // Get the file URIs.
+    $coupons_file_uri = $coupons_file->getFileUri();
+
+    // Get the absolute file paths.
+    $coupons_file_path = \Drupal::service('file_system')->realpath($coupons_file_uri);
+
+    // Parse the CSV files.
+    $coupons = _campaign_winner_selection_parse_csv($coupons_file_path);
+
+    // Save coupons as taxonomy terms.
+    if (!empty($coupons)) {
+      foreach ($coupons as $coupon) {
+        // Check if the term already exists.
+        $existing_terms = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadByProperties([
+          'vid' => 'coupons',
+          'name' => $coupon[1],
+          'field_country' => $coupon[2],
+        ]);
+        if (empty($existing_terms)) {
+          $terms = Term::create([
+            'vid' => 'coupons',
+            'name' => $coupon[1],
+            'field_country' => $coupon[2],
+          ]);
+          $terms->save();
+        } else {
+          \Drupal::logger('campaign_winner_selection')->error('Coupon code @coupon alredy exists', ['@coupon' => $coupon[1]]);
+        }
+      }
+    }
+  }
+  // Process users csv and create webform submission.
+  elseif ($webform_id == 'campaign_upload_users') {
+    // Assuming users are the fields in the webform.
+    // managed_file fields return an array of file IDs.
+    $users_file_id = $data['users'];
+
+    // Load file entities.
+    $users_file = \Drupal::entityTypeManager()->getStorage('file')->load($users_file_id);
+
+    // Get the file URIs.
+    $users_file_uri = $users_file->getFileUri();
+
+    // Get the absolute file paths.
+    $users_file_path = \Drupal::service('file_system')->realpath($users_file_uri);
+
+    // Parse the CSV files.
+    $users = _campaign_winner_selection_parse_csv($users_file_path);
+
+    // Save users in webform as submissions.
+    if (!empty($users)) {
+      foreach ($users as $user) {
+        // Assuming email is the third field in the CSV.
+        $email = $user[2];
+
+        if (empty($email)) {
+          \Drupal::messenger()->addError(t('Unable to parse the csv file.'));
+          return FALSE;
+        }
+
+        // Load all submissions for the webform.
+        $existing_submissions = \Drupal::entityTypeManager()
+          ->getStorage('webform_submission')
+          ->loadByProperties(['webform_id' => 'campaign_contest']);
+
+        $email_exists = FALSE;
+
+        // Check if the email already exists in the submissions.
+        foreach ($existing_submissions as $existing_submission) {
+          $existing_data = $existing_submission->getData();
+          if (isset($existing_data['email']) && $existing_data['email'] === $email) {
+            $email_exists = TRUE;
+            break;
+          }
+        }
+        if (!$email_exists) {
+          $submission_data = [
+            // Assuming first_name is the first field in the CSV.
+            'first_name' => $user[0],
+            'last_name' => $user[1],
+            'email' => $user[2],
+            'country' => $user[3],
+            'phone_number' => $user[4],
+          ];
+
+          // Create the webform submission.
+          $webform_submission = WebformSubmission::create([
+            'webform_id' => 'campaign_contest',
+            'data' => $submission_data,
+          ]);
+
+          // Save the submission.
+          if ($webform_submission->save()) {
+            \Drupal::logger('campaign_winner_selection')->notice('Submission successfully added for @name.', ['@name' => $user[0]]);
+          }
+        } else {
+          \Drupal::logger('campaign_winner_selection')->notice('Submission already exists for @name.', ['@name' => $user[0]]);
+        }
+      }
+      \Drupal::messenger()->addStatus(t('Users imported Successfully'));
+    }
+  }
+}
+
+/**
+ * Parses a CSV file and returns the data as an array.
+ */
+function _campaign_winner_selection_parse_csv($csv_file) {
+  $parsed_data = [];
+  $row = 0;
+  if (($handle = fopen($csv_file, "r")) !== FALSE) {
+    while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
+      // Skip the first row (header row).
+      if ($row == 0) {
+        $row++;
+        continue;
+      }
+      $parsed_data[] = $data;
+    }
+    fclose($handle);
+  }
+  return $parsed_data;
+}
+
+/**
+ * Sends an email notification to the user.
+ *
+ * @param string $winner
+ *   The email address of the recipient.
+ * @param string $coupon_code
+ *   The voucher code (if applicable) to include in the email.
+ * @param string $type
+ *   The type of notification ('voucher' or 'winner').
+ *
+ * @throws \InvalidArgumentException
+ *   Throws exception if the provided type is invalid.
+ */
+function _campaign_winner_selection_send_email($winner_name, $winner, $coupon_code, $type, $voucher_url) {
+  $mailManager = \Drupal::service('plugin.manager.mail');
+  $module = 'campaign_winner_selection';
+  $key = 'winner_notification';
+  $to = $winner;
+  $host = \Drupal::request()->getSchemeAndHttpHost();
+  $image_path  = $host . '/themes/custom/nestlefamily/images/';
+  $style = '<style>
+                body {
+                margin: 0px;
+                padding: 0px;
+                }
+                *, ::after, ::before {
+                box-sizing: border-box;
+                }
+                img {
+                display: block;
+                }
+            </style>';
+  if ($type == 'voucher') {
+    $message_body = '<!doctype html>
+                        <html>
+                            <head>
+                              <meta charset="utf-8">
+                              <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+                              <link rel="stylesheet" href="https://use.typekit.net/qck7rea.css">
+                              <title>Campaign Contest Winner</title>
+                              ' . $style . '
+                            </head>
+                            <body>
+                              <div class="reset" style="margin: auto;">
+                                  <table class="blank-wrapper" border="0" cellspacing="0" cellpadding="0" style="margin: auto;">
+                                    <tr>
+                                        <td>
+                                          <table class="template-wrapper" border="0" cellspacing="0" cellpadding="0" width="100%" style="max-width:610px; margin: auto;">
+                                              <tr>
+                                                <td style="padding-top: 0px;">
+                                                    <!-- classic short -->
+                                                    <div class="ws-corp core-6">
+                                                      <div class="html">
+                                                          <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 610px; margin: auto;">
+                                                            <tr>
+                                                                <td valign="top" style="vertical-align: top;">
+                                                                  <table border="0" cellpadding="0" cellspacing="0" width="100%;">
+                                                                      <tr>
+                                                                        <td>
+                                                                            <table border="0" cellpadding="0" cellspacing="0" width="100%" style=" width: 100%;">
+                                                                              <tr>
+                                                                                  <td class="colum-td" style="padding-bottom: 0px; width: 100%; text-align: center; font-size: 22px; font-weight: bold; padding: 40px 0px 0px;">
+                                                                                    ' . $winner_name . '
+                                                                                  </td>
+                                                                              </tr>
+                                                                            </table>
+                                                                        </td>
+                                                                      </tr>
+                                                                  </table>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td valign="top" style="vertical-align: top;">
+                                                                  <table border="0" cellpadding="0" cellspacing="0">
+                                                                      <tr>
+                                                                        <td>
+                                                                            <table border="0" cellpadding="0" cellspacing="0" width="100%" style=" width: 100%;">
+                                                                              <tr>
+                                                                                  <td class="colum-td" style="padding-bottom: 0px; width: 100%;">
+                                                                                    <img width="610" style="width: 610px; display: block" src="' . $image_path . 'purina-emailer-images/main-top-1.png" alt=""/>
+                                                                                  </td>
+                                                                              </tr>
+                                                                            </table>
+                                                                        </td>
+                                                                      </tr>
+                                                                  </table>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td valign="top" style="vertical-align: top; background: #f5f1e6" bgcolor="#f5f1e6">
+                                                                  <table border="0" cellpadding="0" cellspacing="0" width="455" style=" width: 600px; margin: auto;">
+                                                                      <tr>
+                                                                        <td align="center" style=" background: #fff;">
+                                                                            <table border="0" cellpadding="0" cellspacing="0" width="100%" style=" width: 100%;">
+                                                                              <tr>
+                                                                                  <td class="colum-td" style="padding-bottom: 0px; width: 100%; vertical-align: middle; height: 48px;" align="center">
+                                                                                  </td>
+                                                                              </tr>
+                                                                            </table>
+                                                                        </td>
+                                                                      </tr>
+                                                                      <tr>
+                                                                        <td align="center" style=" background: #fff; padding: 0px 48px 0px;">
+                                                                            <table border="0" cellpadding="0" cellspacing="0" width="100%" style=" width: 100%;">
+                                                                              <tr>
+                                                                                  <td class="colum-td" style="padding-bottom: 0px; width: 50%; vertical-align: middle;" align="center">
+                                                                                    <img width="100%" style="width:100%; display: block;" src="' . $image_path . 'purina-emailer-images/code.png" alt=""/>
+                                                                                  </td>
+                                                                                     
+                                                                                  <td class="colum-td" style="padding-bottom: 0px; width: 50%; vertical-align: middle; background: #DA3832; color: #fff;" align="center" bgcolor="#DA3832">
+                                                                                   ' . $coupon_code . '
+                                                                                  </td>
+                                                                              </tr>
+                                                                            </table>
+                                                                        </td>
+                                                                      </tr>
+                                                                      <tr>
+                                                                        <td align="center" style=" background: #fff;">
+                                                                            <table border="0" cellpadding="0" cellspacing="0" width="100%" style=" width: 100%;">
+                                                                              <tr>
+                                                                                  <td class="colum-td" style="padding-bottom: 0px; width: 100%; vertical-align: middle; height: 24px;" align="center">
+                                                                                  </td>
+                                                                              </tr>
+                                                                            </table>
+                                                                        </td>
+                                                                      </tr>
+                                                                      <tr>
+                                                                        <td align="center" style=" background: #fff; padding: 0px 48px 0px;">
+                                                                            <table border="0" cellpadding="0" cellspacing="0" width="100%" style=" width: 100%;">
+                                                                              <tr>
+                                                                                  <td class="colum-td" style="padding-bottom: 0px; width: 100%; vertical-align: middle;" align="center">
+                                                                                    <a href="'.$voucher_url.'" target="_blank"><img width="100" style="width: 100%; display: block;" src="' . $image_path . 'purina-emailer-images/radeem.png" alt=""/></a>
+                                                                                  </td>
+                                                                              </tr>
+                                                                            </table>
+                                                                        </td>
+                                                                      </tr>
+                                                                      <tr>
+                                                                        <td align="center" style=" background: #fff;">
+                                                                            <table border="0" cellpadding="0" cellspacing="0" width="100%" style=" width: 100%;">
+                                                                              <tr>
+                                                                                  <td class="colum-td" style="padding-bottom: 0px; width: 100%; vertical-align: middle; height: 24px;" align="center">
+                                                                                  </td>
+                                                                              </tr>
+                                                                            </table>
+                                                                        </td>
+                                                                      </tr>
+                                                                  </table>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td valign="top" style="vertical-align: top;">
+                                                                  <table border="0" cellpadding="0" cellspacing="0" width="100%" style=" width: 100%;">
+                                                                      <tr>
+                                                                        <td style="background: #E96FBA;" bgcolor="#E96FBA" align="center">
+                                                                            <table border="0" cellpadding="0" cellspacing="0" width="100%" style=" width: 100%;">
+                                                                              <tr>
+                                                                                  <td class="colum-td" style="padding-bottom: 0px; width: 100%; vertical-align: middle; height:5px; background: #f5f1e6;" align="center">
+                                                                                  </td>
+                                                                              </tr>
+                                                                            </table>
+                                                                        </td>
+                                                                      </tr>
+                                                                  </table>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td valign="top" style="vertical-align: top;">
+                                                                  <table border="0" cellpadding="0" cellspacing="0" width="100%" style=" width: 100%;">
+                                                                      <tr>
+                                                                        <td style="background: #E96FBA;" bgcolor="#E96FBA" align="center">
+                                                                            <table border="0" cellpadding="0" cellspacing="0" width="100%" style=" width: 100%;">
+                                                                              <tr>
+                                                                                  <td class="colum-td" style="padding-bottom: 0px; width: 100%; vertical-align: middle; height: 5px; background: #fff;" align="center">
+                                                                                  </td>
+                                                                              </tr>
+                                                                            </table>
+                                                                        </td>
+                                                                      </tr>
+                                                                  </table>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td valign="top" style="vertical-align: top;">
+                                                                  <table border="0" cellpadding="0" cellspacing="0" width="100%" style=" width: 100%;">
+                                                                      <tr>
+                                                                        <td style="background: #DA3832;" bgcolor="#DA3832" align="center">
+                                                                            <table border="0" cellpadding="0" cellspacing="0" width="100%" style=" width: 100%;">
+                                                                              <tr>
+                                                                                  <td class="colum-td" style="padding-bottom: 0px; width: 100%; vertical-align: middle;" align="center">
+                                                                                    <a target="_blank" href="https://www.purina-arabia.com/"> 
+                                                                                    <img width="337" style="width: 337px; display: block;" src="' . $image_path . 'purina-emailer-images/foter-logo.png" alt=""/>
+                                                                                    </a>
+                                                                                  </td>
+                                                                              </tr>
+                                                                            </table>
+                                                                        </td>
+                                                                      </tr>
+                                                                  </table>
+                                                                </td>
+                                                            </tr>
+                                                          </table>
+                                                      </div>
+                                                    </div>
+                                                </td>
+                                              </tr>
+                                              <tr>
+                                                <td valign="center" style="vertical-align: center; background: #000000; padding: 24px 0px;" bgcolor="#000000">
+                                                    <table align="center" cellspacing="0" cellpadding="0" border="0" width="200" style="200px; margin: auto;">
+                                                      <tr>
+                                                          <td style="text-align: center;" align="center">
+                                                            <div class="app_banner" style="width: 100%" width="100%">
+                                                                <a href="https://www.facebook.com/purinaarabia/" target="_blank"><img width="35" style="width: 35px; margin: auto; display: block;" src="' . $image_path . 'purina-emailer-images/FB.png" alt=""/></a>
+                                                            </div>
+                                                          </td>
+                                                          <td style=" text-align: center;" align="center">
+                                                            <div class="app_banner" style="width: 100%" width="100%">
+                                                                <a href="https://twitter.com/purinaarabia?lang=en" target="_blank"><img width="35" style="width: 35px; margin: auto; display: block;" src="' . $image_path . 'purina-emailer-images/X.png" alt=""/></a>
+                                                            </div>
+                                                          </td>
+                                                          <td style=" text-align: center;" align="center">
+                                                            <div class="app_banner" style="width: 100%" width="100%">
+                                                                <a href="https://www.instagram.com/purinaarabia/" target="_blank"><img width="35" style="width: 35px; margin: auto; display: block;" src="' . $image_path . 'purina-emailer-images/INSTA.png" alt=""/></a>
+                                                            </div>
+                                                          </td>
+                                                          <td style=" text-align: center;" align="center">
+                                                            <div class="app_banner" style="width: 100%" width="100%">
+                                                                <a href="https://www.youtube.com/c/PurinaArabia" target="_blank"><img width="35" style="width: 35px; margin: auto; display: block;" src="' . $image_path . 'purina-emailer-images/YT.png" alt=""/></a>
+                                                            </div>
+                                                          </td>
+                                                      </tr>
+                                                    </table>
+                                                </td>
+                                              </tr>
+                                               <tr>
+                                                 <td style="background: #000; text-align: center" bgcolor="#000" align="center">
+                                                    <table border="0" cellpadding="0" cellspacing="0" width="100%" style=" width: 100%;">
+                                                       <tr>
+                                                          <td class="colum-td" style="padding-bottom: 0px; width: 100%; vertical-align: middle;" align="center">
+                                                             <a href="https://www.purina-arabia.com/privacy" target="_blank" style="display: inline-block;color: #fff; font-size: 12px;">Privacy Policy</a>
+                                                             <span style="display: inline-block;color: #fff; font-size: 12px;">|</span>
+                                                             <a href="https://www.purina-arabia.com/terms-and-conditions" target="_blank" style="display: inline-block;color: #fff; font-size: 12px;">Website T&Cc</a>
+                                                          </td>
+                                                       </tr>
+                                                    </table>
+                                                 </td>
+                                              </tr>
+                                            <tr>
+                                                 <td style="background: #000; text-align: center" bgcolor="#000" align="center">
+                                                    <table border="0" cellpadding="0" cellspacing="0" width="100%" style=" width: 100%;">
+                                                       <tr>
+                                                          <td class="colum-td" style="padding-bottom: 0px; width: 100%; vertical-align: middle;" align="center">
+                                                             <p style="color: #fff; font-size: 12px;">All copyright and other intellectual property rights in all text, images and other materials on this website are the property of the Nestle Group or are included with the permission of the relevant owner.</p>
+                                                          </td>
+                                                       </tr>
+                                                    </table>
+                                                 </td>
+                                              </tr>
+                                          </table>
+                                        </td>
+                                    </tr>
+                                  </table>
+                              </div>
+                            </body>
+                        </html>';
+    $subject = "You've won a voucher code!";
+  } else if ($type == 'winner') {
+    $message_body = '<!doctype html>
+                        <html>
+                            <head>
+                              <meta charset="utf-8">
+                              <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+                              <link rel="stylesheet" href="https://use.typekit.net/qck7rea.css">
+                              <title>Campaign Contest Winner</title>
+                              ' . $style . '
+                            </head>
+                            <body>
+                              <div class="reset" style="margin: auto;">
+                                  <table class="blank-wrapper" border="0" cellspacing="0" cellpadding="0" style="margin: auto;">
+                                    <tr>
+                                        <td>
+                                          <table class="template-wrapper" border="0" cellspacing="0" cellpadding="0" width="100%" style="max-width:610px; margin: auto;">
+                                              <tr>
+                                                <td style="padding-top: 0px;">
+                                                    <!-- classic short -->
+                                                    <div class="ws-corp core-6">
+                                                      <div class="html">
+                                                          <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 610px; margin: auto;">
+                                                            <tr>
+                                                                <td valign="top" style="vertical-align: top;">
+                                                                  <table border="0" cellpadding="0" cellspacing="0" width="100%;">
+                                                                      <tr>
+                                                                        <td>
+                                                                            <table border="0" cellpadding="0" cellspacing="0" width="100%" style=" width: 100%;">
+                                                                              <tr>
+                                                                                  <td class="colum-td" style="padding-bottom: 0px; width: 100%; text-align: center; font-size: 22px; font-weight: bold; padding: 40px 0px 0px;">
+                                                                                    ' . $winner_name . '
+                                                                                  </td>
+                                                                              </tr>
+                                                                            </table>
+                                                                        </td>
+                                                                      </tr>
+                                                                  </table>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td valign="top" style="vertical-align: top;">
+                                                                  <table border="0" cellpadding="0" cellspacing="0">
+                                                                      <tr>
+                                                                        <td>
+                                                                            <table border="0" cellpadding="0" cellspacing="0" width="100%" style=" width: 100%;">
+                                                                              <tr>
+                                                                                  <td class="colum-td" style="padding-bottom: 0px; width: 100%;">
+                                                                                    <img width="610" style="width: 610px; display: block" src="' . $image_path . 'purina-emailer-images/main-top-1.png" alt=""/>
+                                                                                  </td>
+                                                                              </tr>
+                                                                            </table>
+                                                                        </td>
+                                                                      </tr>
+                                                                  </table>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td valign="top" style="vertical-align: top; background: #f5f1e6" bgcolor="#f5f1e6">
+                                                                  <table border="0" cellpadding="0" cellspacing="0" width="455" style=" width: 600px; margin: auto;">
+                                                                      <tr>
+                                                                        <td align="center" style=" background: #fff;">
+                                                                            <table border="0" cellpadding="0" cellspacing="0" width="100%" style=" width: 100%;">
+                                                                              <tr>
+                                                                                  <td class="colum-td" style="padding-bottom: 0px; width: 100%; vertical-align: middle; height: 48px;" align="center">
+                                                                                  </td>
+                                                                              </tr>
+                                                                            </table>
+                                                                        </td>
+                                                                      </tr>
+                                                                      <tr>
+                                                                        <td align="center" style=" background: #fff; padding: 0px 48px 0px;">
+                                                                            <table border="0" cellpadding="0" cellspacing="0" width="100%" style=" width: 100%;">
+                                                                              <tr>
+                                                                                  <td class="colum-td" style="padding-bottom: 0px; width: 50%; vertical-align: middle;" align="center">
+                                                                                    <img width="100%" style="width:100%; display: block;" src="' . $image_path . 'purina-emailer-images/code.png" alt=""/>
+                                                                                  </td>
+                                                                                     
+                                                                                  <td class="colum-td" style="padding-bottom: 0px; width: 50%; vertical-align: middle; background: #DA3832; color: #fff;" align="center" bgcolor="#DA3832">
+                                                                                    <h4>You have been selected as a winner! </h4>
+                                                                                  </td>
+                                                                              </tr>
+                                                                            </table>
+                                                                        </td>
+                                                                      </tr>
+                                                                      <tr>
+                                                                        <td align="center" style=" background: #fff;">
+                                                                            <table border="0" cellpadding="0" cellspacing="0" width="100%" style=" width: 100%;">
+                                                                              <tr>
+                                                                                  <td class="colum-td" style="padding-bottom: 0px; width: 100%; vertical-align: middle; height: 24px;" align="center">
+                                                                                  </td>
+                                                                              </tr>
+                                                                            </table>
+                                                                        </td>
+                                                                      </tr>
+                                                                      <tr>
+                                                                        <td align="center" style=" background: #fff; padding: 0px 48px 0px;">
+                                                                            <table border="0" cellpadding="0" cellspacing="0" width="100%" style=" width: 100%;">
+                                                                              <tr>
+                                                                                  <td class="colum-td" style="padding-bottom: 0px; width: 100%; vertical-align: middle;" align="center">
+                                                                                    <a href="'.$voucher_url.'" target="_blank"><img width="100" style="width: 100%; display: block;" src="' . $image_path . 'purina-emailer-images/radeem.png" alt=""/></a>
+                                                                                  </td>
+                                                                              </tr>
+                                                                            </table>
+                                                                        </td>
+                                                                      </tr>
+                                                                      <tr>
+                                                                        <td align="center" style=" background: #fff;">
+                                                                            <table border="0" cellpadding="0" cellspacing="0" width="100%" style=" width: 100%;">
+                                                                              <tr>
+                                                                                  <td class="colum-td" style="padding-bottom: 0px; width: 100%; vertical-align: middle; height: 24px;" align="center">
+                                                                                  </td>
+                                                                              </tr>
+                                                                            </table>
+                                                                        </td>
+                                                                      </tr>
+                                                                  </table>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td valign="top" style="vertical-align: top;">
+                                                                  <table border="0" cellpadding="0" cellspacing="0" width="100%" style=" width: 100%;">
+                                                                      <tr>
+                                                                        <td style="background: #E96FBA;" bgcolor="#E96FBA" align="center">
+                                                                            <table border="0" cellpadding="0" cellspacing="0" width="100%" style=" width: 100%;">
+                                                                              <tr>
+                                                                                  <td class="colum-td" style="padding-bottom: 0px; width: 100%; vertical-align: middle; height: 5px; background: #f5f1e6;" align="center">
+                                                                                  </td>
+                                                                              </tr>
+                                                                            </table>
+                                                                        </td>
+                                                                      </tr>
+                                                                  </table>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td valign="top" style="vertical-align: top;">
+                                                                  <table border="0" cellpadding="0" cellspacing="0" width="100%" style=" width: 100%;">
+                                                                      <tr>
+                                                                        <td style="background: #E96FBA;" bgcolor="#E96FBA" align="center">
+                                                                            <table border="0" cellpadding="0" cellspacing="0" width="100%" style=" width: 100%;">
+                                                                              <tr>
+                                                                                  <td class="colum-td" style="padding-bottom: 0px; width: 100%; vertical-align: middle; height: 5px; background: #fff;" align="center">
+                                                                                  </td>
+                                                                              </tr>
+                                                                            </table>
+                                                                        </td>
+                                                                      </tr>
+                                                                  </table>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td valign="top" style="vertical-align: top;">
+                                                                  <table border="0" cellpadding="0" cellspacing="0" width="100%" style=" width: 100%;">
+                                                                      <tr>
+                                                                        <td style="background: #DA3832;" bgcolor="#DA3832" align="center">
+                                                                            <table border="0" cellpadding="0" cellspacing="0" width="100%" style=" width: 100%;">
+                                                                              <tr>
+                                                                                  <td class="colum-td" style="padding-bottom: 0px; width: 100%; vertical-align: middle;" align="center">
+                                                                                    <a target="_blank" href="https://youtu.be/EgNb0LQxm84"> 
+                                                                                    <img width="337" style="width: 337px; display: block;" src="' . $image_path . 'purina-emailer-images/foter-logo.png" alt=""/>
+                                                                                    </a>
+                                                                                  </td>
+                                                                              </tr>
+                                                                            </table>
+                                                                        </td>
+                                                                      </tr>
+                                                                  </table>
+                                                                </td>
+                                                            </tr>
+                                                          </table>
+                                                      </div>
+                                                    </div>
+                                                </td>
+                                              </tr>
+                                              <tr>
+                                                <td valign="center" style="vertical-align: center; background: #000000; padding: 24px 0px;" bgcolor="#000000">
+                                                    <table align="center" cellspacing="0" cellpadding="0" border="0" width="200" style="200px; margin: auto;">
+                                                      <tr>
+                                                          <td style="text-align: center;" align="center">
+                                                            <div class="app_banner" style="width: 100%" width="100%">
+                                                                <a href="https://www.facebook.com/purinaarabia/" target="_blank"><img width="35" style="width: 35px; margin: auto; display: block;" src="' . $image_path . 'purina-emailer-images/FB.png" alt=""/></a>
+                                                            </div>
+                                                          </td>
+                                                          <td style=" text-align: center;" align="center">
+                                                            <div class="app_banner" style="width: 100%" width="100%">
+                                                                <a href="https://twitter.com/purinaarabia?lang=en" target="_blank"><img width="35" style="width: 35px; margin: auto; display: block;" src="' . $image_path . 'purina-emailer-images/X.png" alt=""/></a>
+                                                            </div>
+                                                          </td>
+                                                          <td style=" text-align: center;" align="center">
+                                                            <div class="app_banner" style="width: 100%" width="100%">
+                                                                <a href="https://www.instagram.com/purinaarabia/" target="_blank"><img width="35" style="width: 35px; margin: auto; display: block;" src="' . $image_path . 'purina-emailer-images/INSTA.png" alt=""/></a>
+                                                            </div>
+                                                          </td>
+                                                          <td style=" text-align: center;" align="center">
+                                                            <div class="app_banner" style="width: 100%" width="100%">
+                                                                <a href="https://www.youtube.com/c/PurinaArabia" target="_blank"><img width="35" style="width: 35px; margin: auto; display: block;" src="' . $image_path . 'purina-emailer-images/YT.png" alt=""/></a>
+                                                            </div>
+                                                          </td>
+                                                      </tr>
+                                                    </table>
+                                                </td>
+                                              </tr>
+                                              <tr>
+                                                <td valign="top" style="vertical-align: top;">
+                                                    <table border="0" cellpadding="0" cellspacing="0" width="100%" style=" width: 100%;">
+                                                      <tr>
+                                                 <td style="background: #000; text-align: center" bgcolor="#000" align="center">
+                                                    <table border="0" cellpadding="0" cellspacing="0" width="100%" style=" width: 100%;">
+                                                       <tr>
+                                                          <td class="colum-td" style="padding-bottom: 0px; width: 100%; vertical-align: middle;" align="center">
+                                                             <a href="https://www.purina-arabia.com/privacy" target="_blank" style="display: inline-block;color: #fff; font-size: 12px;">Privacy Policy</a>
+                                                             <span style="display: inline-block;color: #fff; font-size: 12px;">|</span>
+                                                             <a href="https://www.purina-arabia.com/terms-and-conditions" target="_blank" style="display: inline-block;color: #fff; font-size: 12px;">Website T&Cc</a>
+                                                          </td>
+                                                       </tr>
+                                                    </table>
+                                                 </td>
+                                              </tr>
+                                            <tr>
+                                                 <td style="background: #000; text-align: center" bgcolor="#000" align="center">
+                                                    <table border="0" cellpadding="0" cellspacing="0" width="100%" style=" width: 100%;">
+                                                       <tr>
+                                                          <td class="colum-td" style="padding-bottom: 0px; width: 100%; vertical-align: middle;" align="center">
+                                                             <p style="color: #fff; font-size: 12px;">All copyright and other intellectual property rights in all text, images and other materials on this website are the property of the Nestle Group or are included with the permission of the relevant owner.</p>
+                                                          </td>
+                                                       </tr>
+                                                    </table>
+                                                 </td>
+                                              </tr>
+                                                    </table>
+                                                </td>
+                                              </tr>
+                                          </table>
+                                        </td>
+                                    </tr>
+                                  </table>
+                              </div>
+                            </body>
+                        </html>';
+    $subject = "You've have been selected as winner!";
+  }
+
+  $headers = "From: ask@platformsh.site\r\n";
+  $headers .= "MIME-Version: 1.0\r\n";
+  $headers .= "Content-Type: text/html; charset=ISO-8859-1\r\n";
+  $result  = mail($to, $subject, $message_body, $headers);
+
+  // $langcode = \Drupal::currentUser()->getPreferredLangcode();
+  // $send = TRUE;
+  // $result = $mailManager->mail($module, $key, $to, $langcode, $params, NULL, $send);
+
+  if ($result) {
+    \Drupal::logger('campaign_winner_selection')->error('There was a problem sending the email.');
+  } else {
+    \Drupal::logger('campaign_winner_selection')->notice('Email sent to ' . $to);
+  }
+}
+
+/**
+ * Implements hook_mail().
+ */
+function campaign_winner_selection_mail($key, &$message, $params) {
+  switch ($key) {
+    case 'winner_notification':
+      $message['subject'] = $params['subject'];
+      $message['body'][] = $params['message'];
+      break;
+  }
+}
+
+/**
+ * Select the winners from submissions and mark them as winners.
+ *
+ * @param string $campaign
+ *   The ID of the webform.
+ * @param string $event_type
+ *   The Event Type.
+ * @param string $country
+ *   Country selected.
+ * @param int $count
+ *   The number of winners to select.
+ *
+ * @return array|bool
+ *   An array of winner emails, or FALSE if no winners are available.
+ */
+function _campaign_winner_selection_get_winners($campaign, $event_type, $country, $count) {
+  $non_winners = _campaign_winner_selection_filter_non_winners($campaign, $country);
+
+  if (empty($non_winners)) {
+    \Drupal::messenger()->addError(t('No users available to select'));
+    return FALSE;
+  }
+  $selected_submissions = _campaign_winner_selection_select_random_submissions($non_winners, $count);
+
+  if ($event_type == 'voucher_code_winners') {
+    // Get random coupon codes.
+    $coupon_codes = _campaign_winner_selection_get_coupon_codes($count, $country);
+    if (!empty($coupon_codes)) {
+      // Update winners with coupon codes selected.
+      return _campaign_winner_selection_update_winners($selected_submissions, $event_type, $coupon_codes);
+    }
+  } else {
+    return _campaign_winner_selection_update_winners($selected_submissions, $event_type, '');
+  }
+}
+
+/**
+ * Selects random submissions from a list.
+ *
+ * @param array $submissions
+ *   An array of webform submission entities.
+ * @param int $count
+ *   The number of submissions to select.
+ *
+ * @return array
+ *   An array of randomly selected webform submission entities.
+ */
+function _campaign_winner_selection_select_random_submissions(array $submissions, $count) {
+  $submission_ids = array_map(function ($submission) {
+    return $submission->id();
+  }, $submissions);
+
+  if (count($submission_ids) < $count) {
+    $count = count($submission_ids);
+  }
+
+  $selected_ids = (array) array_rand(array_flip($submission_ids), $count);
+
+  return array_filter($submissions, function ($submission) use ($selected_ids) {
+    return in_array($submission->id(), $selected_ids);
+  });
+}
+
+/**
+ * Retrieves winner submissions based on campaign, event type, and country.
+ *
+ * @param string $campaign
+ *   The campaign ID.
+ * @param string $event_type
+ *   The event type to filter submissions.
+ * @param string $country
+ *   The country to filter submissions.
+ *
+ * @return array
+ *   An array of webform submissions matching the specified criteria.
+ */
+function _campaign_winner_selection_get_winner_submissions($campaign, $event_type, $country) {
+  $submissions = _campaign_winner_selection_get_submissions($campaign);
+  return array_filter($submissions, function ($submission) use ($event_type, $country) {
+    return ($submission->getElementData('winner') == 1 &&
+      $submission->getElementData('event_type') == $event_type &&
+      $submission->getElementData('country') == $country &&
+      $submission->getElementData('email_sent') != 1 
+    );
+  });
+}
+
+/**
+ * Filters submissions to exclude winners.
+ *
+ * @param string $campaign_id
+ *   The ID of the webform.
+ *
+ * @return array
+ *   An array of non-winner webform submission entities.
+ */
+function _campaign_winner_selection_filter_non_winners($campaign_id, $country) {
+  $submissions = _campaign_winner_selection_get_submissions($campaign_id);
+  return array_filter($submissions, function ($submission) use ($country) {
+    return ($submission->getElementData('winner') != 1
+      && $submission->getElementData('country') == $country
+    );
+  });
+}
+
+/**
+ * Updates the winner status of given submissions.
+ *
+ * @param array $submissions
+ *   An array of webform submission entities.
+ */
+function _campaign_winner_selection_update_winners(array $submissions, $event_type, $coupon_codes) {
+  foreach (array_values($submissions) as $key => $submission) {
+    $data = $submission->getData();
+    $country = $data['country'];
+    if($country == 'UAE'){
+      $voucher_url = 'https://www.amazon.ae/s?k=purina&crid=LEE1T4Y7IBL0&sprefix=purina%2Caps%2C350&ref=nb_sb_ss_ts-doa-p_2_6';
+    }else{
+      $voucher_url = 'https://www.amazon.sa/s?k=Purina&crid=O37M6U034I93&sprefix=purina%2Caps%2C209&ref=nb_sb_noss_1';
+    }
+    $data['winner'] = 1;
+    $data['event_type'] = $event_type;
+    $data['voucher_code'] = $coupon_codes[$key] ?? '';
+    $data['voucher_url'] = $voucher_url;
+    $submission->setData($data);
+    $submission->save();
+  }
+  return count($submissions) ?? [];
+}
+
+
+/**
+ * Updates the winner's email status
+ *
+ * @param array $submissions
+ *   An array of webform submission entities.
+ */
+function _campaign_winner_selection_update_winners_email(WebformSubmissionInterface $submission) {
+    $data = $submission->getData();
+    $data['email_sent'] = 1;
+    $submission->setData($data);
+    if($submission->save()){
+      return TRUE;
+    }
+    
+}
+
+/**
+ * Helper function to get random terms from a vocabulary and update their field.
+ *
+ * @param int $count
+ *   The number of terms to retrieve and update.
+ *
+ * @return array|bool
+ *   An array of selected term labels or FALSE on failure.
+ */
+function _campaign_winner_selection_get_coupon_codes($count, $country) {
+  $field_name = 'field_selected';
+  $field_country = 'field_country';
+  $vocabulary = 'coupons';
+
+  // Load terms from the vocabulary.
+  $terms = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadTree($vocabulary);
+
+  // Filter terms where field_selected is not equal to 1.
+  $filtered_terms = array_filter($terms, function ($term) use ($field_name, $field_country, $country) {
+    $term_entity = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load($term->tid);
+    if ($term_entity && !$term_entity->get($field_name)->isEmpty() && !$term_entity->get($field_country)->isEmpty()){
+      return ($term_entity->get($field_name)->value != 1
+     && $term_entity->get($field_country)->value == $country);
+    }
+  });
+
+  // Handle cases where there are insufficient terms.
+  if (empty($filtered_terms)) {
+    \Drupal::messenger()->addError(t('No Coupon codes available!'));
+    return FALSE;
+  }
+  if (count($filtered_terms) < $count) {
+    \Drupal::messenger()->addError(t('Not enough Coupon codes available with the selected count.'));
+    return FALSE;
+  }
+
+  // Randomly select terms.
+  $filtered_tids = array_column($filtered_terms, 'tid');
+  $selected_tids = array_rand(array_flip($filtered_tids), $count);
+  $selected_tids = (array) $selected_tids;
+
+  // Update selected terms and prepare return values.
+  $term_labels = [];
+  foreach ($selected_tids as $tid) {
+    $term_entity = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load($tid);
+    if ($term_entity) {
+      $term_labels[] = $term_entity->label();
+      $term_entity->set($field_name, 1);
+      $term_entity->set($field_country, $country);
+      $term_entity->save();
+    }
+  }
+  return $term_labels;
+}
+
+/**
+ * Retrieves a unique list of countries from submissions of a specific campaign.
+ *
+ * @return array
+ *   An associative array of country names.
+ */
+function _campaign_winner_selection_get_country_list() {
+  $campaign_id = 'campaign_contest';
+  $submissions = _campaign_winner_selection_get_submissions($campaign_id);
+  $country_list = [];
+  foreach ($submissions as $submission) {
+    $country_name = $submission->getElementData('country');
+    $country_list[$country_name] = $country_name;
+  }
+  return array_unique($country_list);
+}
+
+/**
+ * Retrieves webform submissions for a specific campaign.
+ *
+ * @param string $campaign_id
+ *   The ID of the webform representing the campaign.
+ *
+ * @return \Drupal\webform\Entity\WebformSubmission[]
+ *   An array of webform submission entities matching the given campaign ID.
+ */
+function _campaign_winner_selection_get_submissions($campaign_id) {
+  $query = \Drupal::entityQuery('webform_submission')
+    ->condition('webform_id', $campaign_id)
+    ->accessCheck(TRUE)
+    ->execute();
+  return array_map([WebformSubmission::class, 'load'], array_values($query));
+}

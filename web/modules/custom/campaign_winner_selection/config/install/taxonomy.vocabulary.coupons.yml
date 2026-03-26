@@ -1,0 +1,11 @@
+uuid: 53dfe369-95d9-4dc2-8897-3d56a5843a90
+langcode: en
+status: true
+dependencies: {  }
+_core:
+  default_config_hash: irUbghVRAnjVvL423gKpvkauFiXLShrVkVcLcD-Hn-I
+name: coupons
+vid: coupons
+description: 'coupons taxonomy with terms as coupon codes'
+weight: 0
+new_revision: false

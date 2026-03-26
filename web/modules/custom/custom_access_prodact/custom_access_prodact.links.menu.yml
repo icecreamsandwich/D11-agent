@@ -1,0 +1,6 @@
+custom_access_prodact.captain_menu_link:
+  title: 'Captain Zone'
+  menu_name: main
+  description: 'Access for captains only'
+  route_name: custom_access_prodact.captain_page
+  weight: 5

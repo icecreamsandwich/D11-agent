@@ -1,0 +1,16 @@
+custom_access_prodact.captain_page:
+  path: '/captain-zone'
+  defaults:
+    _controller: '\Drupal\custom_access_prodact\Controller\CustomAccessProdactController::captainPage'
+    _title: 'Captain Zone'
+  requirements:
+    _custom_access: '\Drupal\custom_access_prodact\Access\CaptainAccessCheck::access'
+
+custom_access_prodact.page:
+  path: '/custom-page'
+  defaults:
+    _controller: '\Drupal\custom_access_prodact\Controller\CustomAccessProdactController::content'
+    _title: 'My Custom Page'
+  requirements:
+    _permission: 'access content'
+
