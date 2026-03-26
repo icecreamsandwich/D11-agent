@@ -1,0 +1,22 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.page
+  module:
+    - metatag
+    - node
+id: node__page
+label: 'Content: Basic page'
+tags:
+  title: '[node:title] | [site:name]'
+  description: '[node:summary]'
+  abstract: ''
+  keywords: ''
+  robots: ''
+  canonical_url: '[node:url]'
+  og_title: '[node:title]'
+  og_description: '[node:summary]'
+  og_url: '[node:url]'
+  og_type: website
+  og_site_name: '[site:name]'
