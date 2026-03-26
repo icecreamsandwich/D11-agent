@@ -17,7 +17,7 @@ services:
   d11_performance_optimizer.cache_analyzer:
     class: Drupal\d11_performance_optimizer\Service\CacheAnalyzerService
     arguments:
-      - '@cache.backend.database'
+      - '@cache.default'
       - '@config.factory'
       - '@logger.factory'
       - '@module_handler'
