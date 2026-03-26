@@ -159,12 +159,11 @@ final class PerformanceLoggerService {
    */
   public function getLogSummary(): array {
     try {
-      $result = $this->database->select('d11_performance_logs', 'l')
+      $query = $this->database->select('d11_performance_logs', 'l')
         ->fields('l', ['log_type'])
-        ->groupBy('l.log_type')
-        ->addExpression('COUNT(*)', 'cnt')
-        ->execute()
-        ->fetchAll();
+        ->groupBy('l.log_type');
+      $query->addExpression('COUNT(*)', 'cnt');
+      $result = $query->execute()->fetchAll();
 
       $summary = [];
       foreach ($result as $row) {
