@@ -1,0 +1,88 @@
+{#
+/**
+ * @file
+ * Template for the Contact Information block.
+ *
+ * Variables:
+ * - address: Street address (may be multiline).
+ * - email: Email address string.
+ * - phone: Phone number string.
+ * - business_hours: Business hours (may be multiline).
+ * - show_social_links: Boolean — whether to render social icon links.
+ * - attributes: HTML attributes for the block wrapper.
+ */
+#}
+{{ attach_library('site_page_builder/page_builder') }}
+{{ attach_library('mahi/fontawesome6') }}
+<div{{ attributes.addClass('spb-contact-info') }}>
+  <h3 class="spb-contact-info__heading">{{ 'Contact Information'|t }}</h3>
+
+  {% if address %}
+    <div class="spb-contact-info__row">
+      <span class="spb-contact-info__icon" aria-hidden="true">
+        <i class="fa-solid fa-location-dot"></i>
+      </span>
+      <div class="spb-contact-info__group">
+        <span class="spb-contact-info__row-label">{{ 'ADDRESS'|t }}</span>
+        <div class="spb-contact-info__text">{{ address|nl2br }}</div>
+      </div>
+    </div>
+  {% endif %}
+
+  {% if email %}
+    <div class="spb-contact-info__row">
+      <span class="spb-contact-info__icon" aria-hidden="true">
+        <i class="fa-solid fa-envelope"></i>
+      </span>
+      <div class="spb-contact-info__group">
+        <span class="spb-contact-info__row-label">{{ 'EMAIL'|t }}</span>
+        <a href="mailto:{{ email }}" class="spb-contact-info__link">{{ email }}</a>
+      </div>
+    </div>
+  {% endif %}
+
+  {% if phone %}
+    <div class="spb-contact-info__row">
+      <span class="spb-contact-info__icon" aria-hidden="true">
+        <i class="fa-solid fa-phone"></i>
+      </span>
+      <div class="spb-contact-info__group">
+        <span class="spb-contact-info__row-label">{{ 'PHONE'|t }}</span>
+        <a href="tel:{{ phone|replace({' ': '', '(': '', ')': '', '-': ''}) }}" class="spb-contact-info__link">{{ phone }}</a>
+      </div>
+    </div>
+  {% endif %}
+
+  {% if business_hours %}
+    <div class="spb-contact-info__row">
+      <span class="spb-contact-info__icon" aria-hidden="true">
+        <i class="fa-solid fa-clock"></i>
+      </span>
+      <div class="spb-contact-info__group">
+        <span class="spb-contact-info__row-label">{{ 'BUSINESS HOURS'|t }}</span>
+        <div class="spb-contact-info__text">{{ business_hours|nl2br }}</div>
+      </div>
+    </div>
+  {% endif %}
+
+  {% if show_social_links %}
+    <div class="spb-contact-info__social">
+      <h4 class="spb-contact-info__social-heading">{{ 'Connect With Us'|t }}</h4>
+      <p class="spb-contact-info__social-desc">{{ 'Follow us on social media for updates and latest news.'|t }}</p>
+      <div class="spb-contact-info__social-links">
+        <a href="#" class="spb-contact-info__social-link spb-contact-info__social-link--facebook" aria-label="{{ 'Facebook'|t }}">
+          <i class="fa-brands fa-facebook-f"></i>
+        </a>
+        <a href="#" class="spb-contact-info__social-link spb-contact-info__social-link--linkedin" aria-label="{{ 'LinkedIn'|t }}">
+          <i class="fa-brands fa-linkedin-in"></i>
+        </a>
+        <a href="#" class="spb-contact-info__social-link spb-contact-info__social-link--twitter" aria-label="{{ 'Twitter'|t }}">
+          <i class="fa-brands fa-x-twitter"></i>
+        </a>
+        <a href="#" class="spb-contact-info__social-link spb-contact-info__social-link--instagram" aria-label="{{ 'Instagram'|t }}">
+          <i class="fa-brands fa-instagram"></i>
+        </a>
+      </div>
+    </div>
+  {% endif %}
+</div>

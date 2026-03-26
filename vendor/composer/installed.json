@@ -2447,6 +2447,53 @@
             "install-path": "../../web/modules/contrib/inline_entity_form"
         },
         {
+            "name": "drupal/mahi",
+            "version": "1.1.2",
+            "version_normalized": "1.1.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://git.drupalcode.org/project/mahi.git",
+                "reference": "1.1.2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://ftp.drupal.org/files/projects/mahi-1.1.2.zip",
+                "reference": "1.1.2",
+                "shasum": "2a732cac3dd1c646e3cd6f8e836858dca41be832"
+            },
+            "require": {
+                "drupal/core": "^9 || ^10 || ^11"
+            },
+            "type": "drupal-theme",
+            "extra": {
+                "drupal": {
+                    "version": "1.1.2",
+                    "datestamp": "1759756870",
+                    "security-coverage": {
+                        "status": "covered",
+                        "message": "Covered by Drupal's security advisory policy"
+                    }
+                }
+            },
+            "installation-source": "dist",
+            "notification-url": "https://packages.drupal.org/8/downloads",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "ravis",
+                    "homepage": "https://www.drupal.org/user/79351"
+                }
+            ],
+            "description": "<p>Mahi is a light weight modern Drupal 9, 10, 11 theme by <a href=\"https://drupar.com/\" target=\"_blank\">Drupar.com</a></p><p><a href=\"https://drupar.com/theme/mahi\" target=\"_blank\">Theme Homepage</a> | <a href=\"https://drupar.com/doc/mahi\" target=\"_blank\">User Guide</a></p>",
+            "homepage": "https://www.drupal.org/project/mahi",
+            "support": {
+                "source": "https://git.drupalcode.org/project/mahi"
+            },
+            "install-path": "../../web/themes/contrib/mahi"
+        },
+        {
             "name": "drupal/metatag",
             "version": "2.2.0",
             "version_normalized": "2.2.0.0",

@@ -225,7 +225,7 @@ function d11_performance_optimizer_schema(): array {
  * Removes the leading "{Content type} - " from node titles where present,
  * e.g. "Basic page - Singularis Uxor" becomes "Singularis Uxor".
  */
-function d11_performance_optimizer_update_10001(array &$sandbox): string {
+function d11_performance_optimizer_update_10003(array &$sandbox): string {
   if (!isset($sandbox['nids'])) {
     $sandbox['nids'] = \Drupal::entityQuery('node')
       ->condition('type', ['article', 'page'], 'IN')

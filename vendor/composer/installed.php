@@ -3,7 +3,7 @@
         'name' => 'drupal/recommended-project',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => 'f6e08a428e665a7dcca19cf066c317837943128a',
+        'reference' => '77aa8da1d134089c410c201a06101ded63c6142c',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -444,6 +444,15 @@
             'aliases' => array(),
             'dev_requirement' => false,
         ),
+        'drupal/mahi' => array(
+            'pretty_version' => '1.1.2',
+            'version' => '1.1.2.0',
+            'reference' => '1.1.2',
+            'type' => 'drupal-theme',
+            'install_path' => __DIR__ . '/../../web/themes/contrib/mahi',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
         'drupal/metatag' => array(
             'pretty_version' => '2.2.0',
             'version' => '2.2.0.0',
@@ -474,7 +483,7 @@
         'drupal/recommended-project' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => 'f6e08a428e665a7dcca19cf066c317837943128a',
+            'reference' => '77aa8da1d134089c410c201a06101ded63c6142c',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

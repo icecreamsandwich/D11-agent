@@ -1,0 +1,405 @@
+/**
+ * @file
+ * Site Page Builder — Block & Layout Styles.
+ *
+ * All classes use the spb- prefix (BEM).
+ * Uses --spb-primary: #2563EB to match the blue design.
+ * Does NOT override Mahi's global --color-primary.
+ */
+
+/* =============================================================================
+   CSS Custom Properties
+   ============================================================================= */
+:root {
+  --spb-primary: #2563EB;
+  --spb-primary-dark: #1d4ed8;
+  --spb-primary-light: #eff6ff;
+  --spb-white: #ffffff;
+  --spb-light-bg: #f0f4ff;
+  --spb-text-dark: #1e293b;
+  --spb-text-muted: #64748b;
+  --spb-border: #e2e8f0;
+  --spb-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  --spb-radius: 8px;
+  --spb-transition: 0.25s ease;
+}
+
+/* =============================================================================
+   Hero Slider Block (.spb-hero)
+   ============================================================================= */
+.spb-hero {
+  position: relative;
+  min-height: 480px;
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-color: #1e293b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  overflow: hidden;
+}
+
+.spb-hero__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.65) 0%, rgba(0, 0, 0, 0.4) 100%);
+  z-index: 1;
+}
+
+.spb-hero__content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  color: var(--spb-white);
+  padding: 2rem 1.5rem;
+  max-width: 860px;
+  width: 100%;
+}
+
+.spb-hero__title {
+  font-size: clamp(2rem, 5vw, 3.25rem);
+  font-weight: 800;
+  line-height: 1.2;
+  margin: 0 0 1rem;
+  color: var(--spb-white);
+  letter-spacing: -0.02em;
+}
+
+.spb-hero__subtitle {
+  font-size: clamp(1rem, 2.5vw, 1.25rem);
+  line-height: 1.65;
+  margin: 0 0 2rem;
+  opacity: 0.9;
+  max-width: 620px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.spb-hero__cta-btn {
+  display: inline-block;
+  background: var(--spb-primary);
+  color: var(--spb-white);
+  padding: 0.875rem 2.25rem;
+  border-radius: var(--spb-radius);
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 0.01em;
+  transition: background var(--spb-transition), transform var(--spb-transition);
+  border: 2px solid transparent;
+}
+
+.spb-hero__cta-btn:hover,
+.spb-hero__cta-btn:focus {
+  background: var(--spb-primary-dark);
+  color: var(--spb-white);
+  transform: translateY(-2px);
+  outline: none;
+}
+
+.spb-hero__cta-btn:focus-visible {
+  outline: 3px solid var(--spb-white);
+  outline-offset: 3px;
+}
+
+/* =============================================================================
+   Four-Column Layout (.spb-fourcol)
+   ============================================================================= */
+.spb-fourcol {
+  display: flex;
+  flex-wrap: wrap;
+  background: var(--spb-light-bg);
+  padding: 3rem 1.5rem;
+  gap: 0;
+}
+
+.spb-fourcol__col {
+  flex: 1 1 220px;
+  min-width: 0;
+  border-right: 1px solid var(--spb-border);
+}
+
+.spb-fourcol__col:last-child {
+  border-right: none;
+}
+
+/* =============================================================================
+   Counter Item Block (.spb-counter)
+   ============================================================================= */
+.spb-counter {
+  text-align: center;
+  padding: 2rem 1.5rem;
+}
+
+.spb-counter__icon {
+  font-size: 2.5rem;
+  color: var(--spb-primary);
+  margin-bottom: 0.875rem;
+  line-height: 1;
+}
+
+.spb-counter__number {
+  font-size: 2.75rem;
+  font-weight: 800;
+  color: var(--spb-text-dark);
+  line-height: 1;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.03em;
+}
+
+.spb-counter__label {
+  font-size: 0.95rem;
+  color: var(--spb-text-muted);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* =============================================================================
+   Call to Action Block (.spb-cta)
+   ============================================================================= */
+.spb-cta {
+  padding: 4.5rem 1.5rem;
+  text-align: center;
+  width: 100%;
+}
+
+.spb-cta__inner {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.spb-cta__title {
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: 800;
+  color: var(--spb-white);
+  margin: 0 0 1rem;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+}
+
+.spb-cta__subtitle {
+  font-size: 1.125rem;
+  color: rgba(255, 255, 255, 0.85);
+  margin: 0 0 2rem;
+  line-height: 1.65;
+}
+
+.spb-cta__btn {
+  display: inline-block;
+  background: var(--spb-white);
+  color: var(--spb-primary);
+  padding: 0.875rem 2.25rem;
+  border-radius: var(--spb-radius);
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 1rem;
+  transition: opacity var(--spb-transition), transform var(--spb-transition);
+  border: 2px solid var(--spb-white);
+}
+
+.spb-cta__btn:hover,
+.spb-cta__btn:focus {
+  opacity: 0.92;
+  color: var(--spb-primary);
+  transform: translateY(-2px);
+  outline: none;
+}
+
+.spb-cta__btn:focus-visible {
+  outline: 3px solid var(--spb-white);
+  outline-offset: 3px;
+}
+
+/* =============================================================================
+   Contact Information Block (.spb-contact-info)
+   ============================================================================= */
+.spb-contact-info {
+  background: var(--spb-white);
+  border-radius: var(--spb-radius);
+  padding: 2rem;
+  box-shadow: var(--spb-shadow);
+  height: 100%;
+}
+
+.spb-contact-info__heading {
+  font-size: 1.375rem;
+  font-weight: 700;
+  color: var(--spb-text-dark);
+  margin: 0 0 1.75rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--spb-primary-light);
+}
+
+.spb-contact-info__row {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.spb-contact-info__icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  background: var(--spb-primary);
+  color: var(--spb-white);
+  font-size: 1rem;
+}
+
+.spb-contact-info__group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding-top: 0.25rem;
+}
+
+.spb-contact-info__row-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--spb-text-muted);
+  text-transform: uppercase;
+}
+
+.spb-contact-info__text {
+  color: var(--spb-text-dark);
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+.spb-contact-info__link {
+  color: var(--spb-text-dark);
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: color var(--spb-transition);
+}
+
+.spb-contact-info__link:hover,
+.spb-contact-info__link:focus {
+  color: var(--spb-primary);
+}
+
+/* Social links within contact info */
+.spb-contact-info__social {
+  margin-top: 1.75rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--spb-border);
+}
+
+.spb-contact-info__social-heading {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--spb-text-dark);
+  margin: 0 0 0.5rem;
+}
+
+.spb-contact-info__social-desc {
+  font-size: 0.875rem;
+  color: var(--spb-text-muted);
+  margin: 0 0 1rem;
+}
+
+.spb-contact-info__social-links {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.spb-contact-info__social-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background: var(--spb-primary);
+  color: var(--spb-white);
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: background var(--spb-transition), transform var(--spb-transition);
+}
+
+.spb-contact-info__social-link:hover,
+.spb-contact-info__social-link:focus {
+  background: var(--spb-primary-dark);
+  color: var(--spb-white);
+  transform: translateY(-2px);
+  outline: none;
+}
+
+.spb-contact-info__social-link:focus-visible {
+  outline: 2px solid var(--spb-primary);
+  outline-offset: 3px;
+}
+
+/* Individual social brand colours on hover (optional) */
+.spb-contact-info__social-link--facebook:hover { background: #1877F2; }
+.spb-contact-info__social-link--twitter:hover  { background: #000000; }
+.spb-contact-info__social-link--instagram:hover { background: #E1306C; }
+.spb-contact-info__social-link--linkedin:hover { background: #0A66C2; }
+
+/* =============================================================================
+   Layout Builder context — remove default section padding that conflicts
+   ============================================================================= */
+.layout-builder__region .spb-hero {
+  margin-left: -15px;
+  margin-right: -15px;
+}
+
+/* =============================================================================
+   Responsive
+   ============================================================================= */
+@media (max-width: 900px) {
+  .spb-fourcol {
+    flex-wrap: wrap;
+  }
+
+  .spb-fourcol__col {
+    flex: 1 1 45%;
+    border-right: none;
+    border-bottom: 1px solid var(--spb-border);
+  }
+
+  .spb-fourcol__col:nth-child(odd) {
+    border-right: 1px solid var(--spb-border);
+  }
+
+  .spb-fourcol__col:last-child,
+  .spb-fourcol__col:nth-last-child(2):nth-child(odd) {
+    border-bottom: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .spb-hero {
+    min-height: 340px;
+  }
+
+  .spb-hero__content {
+    padding: 1.5rem 1rem;
+  }
+
+  .spb-fourcol__col {
+    flex: 1 1 100%;
+    border-right: none;
+  }
+
+  .spb-fourcol__col:nth-child(odd) {
+    border-right: none;
+  }
+
+  .spb-cta {
+    padding: 3rem 1rem;
+  }
+
+  .spb-contact-info {
+    padding: 1.5rem;
+  }
+}

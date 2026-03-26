@@ -1,4 +1,4 @@
-uuid: 358dbd1c-3bf0-48a4-a0f9-dbc632b4f3ca
+uuid: 79d910a1-6f02-4bd9-bbc3-c364c332389d
 langcode: en
 status: true
 dependencies:
@@ -7,7 +7,9 @@ dependencies:
     - field.field.node.article.body
     - field.field.node.article.comment
     - field.field.node.article.field_image
+    - field.field.node.article.field_meta_tags
     - field.field.node.article.field_tags
+    - field.field.node.article.layout_builder__layout
     - image.style.medium
     - node.type.article
   module:
@@ -53,4 +55,5 @@ content:
     region: content
 hidden:
   comment: true
-  langcode: true
+  field_meta_tags: true
+  layout_builder__layout: true
