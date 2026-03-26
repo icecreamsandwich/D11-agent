@@ -1,0 +1,230 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * @file
+ * Install, update and uninstall functions for the D11 Performance Optimizer module.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function d11_performance_optimizer_schema(): array {
+  $schema = [];
+
+  $schema['d11_performance_metrics'] = [
+    'description' => 'Stores page performance metrics captured by the module.',
+    'fields' => [
+      'id' => [
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ],
+      'path' => [
+        'type' => 'varchar',
+        'length' => 2048,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => 'The request path.',
+      ],
+      'page_load_time' => [
+        'type' => 'float',
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'Page load time in milliseconds.',
+      ],
+      'twig_render_time' => [
+        'type' => 'float',
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'Twig render time in milliseconds.',
+      ],
+      'db_query_count' => [
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'Number of database queries executed.',
+      ],
+      'memory_usage' => [
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'Memory usage in bytes.',
+      ],
+      'render_cache_hits' => [
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'Number of render cache hits.',
+      ],
+      'render_cache_misses' => [
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'Number of render cache misses.',
+      ],
+      'asset_payload_size' => [
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'Total asset payload size in bytes.',
+      ],
+      'time_to_first_byte' => [
+        'type' => 'float',
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'Time to first byte in milliseconds.',
+      ],
+      'response_size' => [
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'Response body size in bytes.',
+      ],
+      'timestamp' => [
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'Unix timestamp when the metric was captured.',
+      ],
+    ],
+    'primary key' => ['id'],
+    'indexes' => [
+      'path' => [['path', 255]],
+      'timestamp' => ['timestamp'],
+    ],
+  ];
+
+  $schema['d11_performance_logs'] = [
+    'description' => 'Stores detailed performance log entries.',
+    'fields' => [
+      'id' => [
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ],
+      'log_type' => [
+        'type' => 'varchar',
+        'length' => 64,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => 'Type of log entry (slow_request, slow_query, high_memory, etc.).',
+      ],
+      'severity' => [
+        'type' => 'varchar',
+        'length' => 16,
+        'not null' => TRUE,
+        'default' => 'warning',
+        'description' => 'Severity level: info, warning, error.',
+      ],
+      'path' => [
+        'type' => 'varchar',
+        'length' => 2048,
+        'not null' => TRUE,
+        'default' => '',
+      ],
+      'message' => [
+        'type' => 'text',
+        'size' => 'big',
+        'not null' => TRUE,
+        'description' => 'Log message with details.',
+      ],
+      'context' => [
+        'type' => 'blob',
+        'size' => 'big',
+        'not null' => FALSE,
+        'description' => 'Serialized context data.',
+      ],
+      'timestamp' => [
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ],
+    ],
+    'primary key' => ['id'],
+    'indexes' => [
+      'log_type' => ['log_type'],
+      'timestamp' => ['timestamp'],
+      'severity' => ['severity'],
+    ],
+  ];
+
+  $schema['d11_slow_queries'] = [
+    'description' => 'Stores slow database query records.',
+    'fields' => [
+      'id' => [
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ],
+      'query_hash' => [
+        'type' => 'varchar',
+        'length' => 64,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => 'MD5 hash of the normalized query for deduplication.',
+      ],
+      'query' => [
+        'type' => 'text',
+        'size' => 'big',
+        'not null' => TRUE,
+      ],
+      'execution_time' => [
+        'type' => 'float',
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'Query execution time in milliseconds.',
+      ],
+      'call_stack' => [
+        'type' => 'text',
+        'size' => 'big',
+        'not null' => FALSE,
+      ],
+      'occurrence_count' => [
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 1,
+      ],
+      'path' => [
+        'type' => 'varchar',
+        'length' => 2048,
+        'not null' => TRUE,
+        'default' => '',
+      ],
+      'timestamp' => [
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ],
+    ],
+    'primary key' => ['id'],
+    'indexes' => [
+      'query_hash' => ['query_hash'],
+      'execution_time' => ['execution_time'],
+      'timestamp' => ['timestamp'],
+    ],
+  ];
+
+  return $schema;
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function d11_performance_optimizer_uninstall(): void {
+  \Drupal::configFactory()
+    ->getEditable('d11_performance_optimizer.settings')
+    ->delete();
+  \Drupal::state()->delete('d11_performance_optimizer.last_analysis');
+}
