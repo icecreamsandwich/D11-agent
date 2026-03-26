@@ -247,14 +247,26 @@ function d11_performance_optimizer_update_10001(array &$sandbox): string {
       continue;
     }
 
-    $type_label = $node_type_storage->load($node->bundle())->label();
-    $prefix = $type_label . ' - ';
     $title = $node->getTitle();
+    if (empty($title)) {
+      $sandbox['processed']++;
+      continue;
+    }
 
+    $node_type = $node_type_storage->load($node->bundle());
+    if (!$node_type) {
+      $sandbox['processed']++;
+      continue;
+    }
+
+    $prefix = $node_type->label() . ' - ';
     if (str_starts_with($title, $prefix)) {
-      $node->setTitle(substr($title, strlen($prefix)));
-      $node->save();
-      $sandbox['updated']++;
+      $new_title = substr($title, strlen($prefix));
+      if (!empty($new_title)) {
+        $node->setTitle($new_title);
+        $node->save();
+        $sandbox['updated']++;
+      }
     }
 
     $sandbox['processed']++;
