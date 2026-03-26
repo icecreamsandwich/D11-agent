@@ -9,7 +9,7 @@ dependencies:
 id: node__article
 label: 'Content: Article'
 tags:
-  title: '[node:title] | [site:name]'
+  title: '[node:title] - [node:type-name]'
   description: '[node:summary]'
   abstract: ''
   keywords: ''
