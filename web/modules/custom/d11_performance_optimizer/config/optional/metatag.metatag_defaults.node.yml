@@ -7,7 +7,7 @@ dependencies:
 id: node
 label: 'Content'
 tags:
-  title: '[node:title] | [site:name]'
+  title: '[node:title] - [node:type-name]'
   description: '[node:summary]'
   abstract: ''
   keywords: ''

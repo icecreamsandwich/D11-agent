@@ -168,7 +168,7 @@ final class SEOOptimizationService {
     $issues = [];
 
     // Check for title tag.
-    if (!preg_match('/<title[^>]*>[^<]{1,}</title>/i', $html)) {
+    if (!preg_match('/<title[^>]*>[^<]{1,}<\/title>/i', $html)) {
       $issues[] = ['severity' => 'error', 'issue' => 'Missing or empty <title> tag.'];
     }
     elseif (preg_match('/<title[^>]*>(.{70,})<\/title>/i', $html, $matches)) {
