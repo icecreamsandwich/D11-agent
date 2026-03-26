@@ -220,7 +220,10 @@ function d11_performance_optimizer_schema(): array {
 }
 
 /**
- * Resave all article and page nodes to refresh metatag title tokens.
+ * Strip content type prefix from article and page node titles.
+ *
+ * Removes the leading "{Content type} - " from node titles where present,
+ * e.g. "Basic page - Singularis Uxor" becomes "Singularis Uxor".
  */
 function d11_performance_optimizer_update_10001(array &$sandbox): string {
   if (!isset($sandbox['nids'])) {
@@ -230,16 +233,30 @@ function d11_performance_optimizer_update_10001(array &$sandbox): string {
       ->execute();
     $sandbox['total'] = count($sandbox['nids']);
     $sandbox['processed'] = 0;
+    $sandbox['updated'] = 0;
   }
 
+  $node_type_storage = \Drupal::entityTypeManager()->getStorage('node_type');
   $batch_size = 25;
   $batch = array_splice($sandbox['nids'], 0, $batch_size);
 
   foreach ($batch as $nid) {
     $node = \Drupal\node\Entity\Node::load($nid);
-    if ($node) {
-      $node->save();
+    if (!$node) {
+      $sandbox['processed']++;
+      continue;
     }
+
+    $type_label = $node_type_storage->load($node->bundle())->label();
+    $prefix = $type_label . ' - ';
+    $title = $node->getTitle();
+
+    if (str_starts_with($title, $prefix)) {
+      $node->setTitle(substr($title, strlen($prefix)));
+      $node->save();
+      $sandbox['updated']++;
+    }
+
     $sandbox['processed']++;
   }
 
@@ -247,7 +264,12 @@ function d11_performance_optimizer_update_10001(array &$sandbox): string {
     ? ($sandbox['processed'] / $sandbox['total'])
     : 1;
 
-  return sprintf('Resaved %d of %d nodes.', $sandbox['processed'], $sandbox['total']);
+  return sprintf(
+    'Processed %d of %d nodes; updated %d titles.',
+    $sandbox['processed'],
+    $sandbox['total'],
+    $sandbox['updated']
+  );
 }
 
 /**
