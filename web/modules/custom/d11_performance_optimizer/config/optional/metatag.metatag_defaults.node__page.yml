@@ -9,7 +9,7 @@ dependencies:
 id: node__page
 label: 'Content: Basic page'
 tags:
-  title: '[node:title] | [site:name]'
+  title: '[node:title] - [node:type-name]'
   description: '[node:summary]'
   abstract: ''
   keywords: ''
