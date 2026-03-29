@@ -1,0 +1,9 @@
+name: 'Site Page Builder'
+type: module
+description: 'Provides content explorer views and page builder functionality.'
+package: Custom
+core_version_requirement: ^11
+dependencies:
+  - drupal:views
+  - drupal:node
+  - drupal:user
