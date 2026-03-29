@@ -1,13 +1,67 @@
-uuid: a0131469-5c84-4a50-8297-3a337e71e64c
+uuid: d18bd5ee-0f5d-4d80-9acd-0f46b6207e17
 langcode: en
 status: true
 dependencies:
   config:
     - field.field.node.page.body
+    - field.field.node.page.field_meta_tags
     - node.type.page
   module:
+    - layout_builder
+    - metatag
     - text
     - user
+third_party_settings:
+  layout_builder:
+    enabled: true
+    allow_custom: true
+    sections:
+      -
+        layout_id: layout_onecol
+        layout_settings:
+          label: ''
+        components:
+          0495d147-a7c7-40f4-89f0-edb27b3ac836:
+            uuid: 0495d147-a7c7-40f4-89f0-edb27b3ac836
+            region: content
+            configuration:
+              id: 'field_block:node:page:body'
+              label_display: '0'
+              context_mapping:
+                entity: layout_builder.entity
+              formatter:
+                type: text_default
+                label: hidden
+                settings: {  }
+                third_party_settings: {  }
+            weight: 0
+            additional: {  }
+          d25a5cb5-7618-4997-b1be-9b32474b1608:
+            uuid: d25a5cb5-7618-4997-b1be-9b32474b1608
+            region: content
+            configuration:
+              id: 'extra_field_block:node:page:links'
+              label_display: '0'
+              context_mapping:
+                entity: layout_builder.entity
+            weight: 1
+            additional: {  }
+          8642c183-1b95-46fe-9368-068f4fecd6c5:
+            uuid: 8642c183-1b95-46fe-9368-068f4fecd6c5
+            region: content
+            configuration:
+              id: 'field_block:node:page:field_meta_tags'
+              label_display: '0'
+              context_mapping:
+                entity: layout_builder.entity
+              formatter:
+                type: metatag_empty_formatter
+                label: above
+                settings: {  }
+                third_party_settings: {  }
+            weight: 2
+            additional: {  }
+        third_party_settings: {  }
 _core:
   default_config_hash: M_Y8L5tfmhx7DR143E05YyZSpvgil6VFvqcfBWykalg
 id: node.page.default
@@ -22,8 +76,16 @@ content:
     third_party_settings: {  }
     weight: 100
     region: content
+  field_meta_tags:
+    type: metatag_empty_formatter
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 111
+    region: content
   links:
+    settings: {  }
+    third_party_settings: {  }
     weight: 101
     region: content
-hidden:
-  langcode: true
+hidden: {  }

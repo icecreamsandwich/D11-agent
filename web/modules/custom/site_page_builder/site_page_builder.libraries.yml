@@ -1,0 +1,5 @@
+page_builder:
+  version: '1.0.0'
+  css:
+    theme:
+      css/site_page_builder.css: {}

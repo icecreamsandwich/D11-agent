@@ -1,0 +1,35 @@
+# Performance thresholds
+slow_query_threshold: 100
+slow_request_threshold: 2000
+high_memory_threshold: 67108864
+large_response_threshold: 1048576
+large_asset_threshold: 102400
+
+# Feature toggles
+enable_css_optimization: true
+enable_js_optimization: true
+enable_seo_optimization: true
+enable_render_optimization: true
+enable_query_monitoring: true
+enable_coding_standards: false
+enable_performance_logging: true
+
+# Logging retention (days)
+log_retention_days: 30
+metrics_retention_days: 7
+
+# JS deferral
+defer_javascript: true
+lazy_load_javascript: true
+
+# CSS inlining threshold (bytes)
+critical_css_threshold: 4096
+
+# Cache analysis
+cache_hit_ratio_threshold: 0.8
+
+# Recommendations
+max_recommendations: 10
+
+# Dashboard sampling rate (1 = every request, 10 = every 10th request)
+sampling_rate: 10

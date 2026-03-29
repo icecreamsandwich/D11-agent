@@ -1,0 +1,109 @@
+d11_performance_optimizer.settings:
+  type: config_object
+  label: 'D11 Performance Optimizer Settings'
+  mapping:
+    enabled:
+      type: boolean
+      label: 'Module enabled'
+    collect_metrics:
+      type: boolean
+      label: 'Collect performance metrics'
+    metrics_retention_days:
+      type: integer
+      label: 'Metrics retention in days'
+    log_retention_days:
+      type: integer
+      label: 'Log retention in days'
+    slow_request_threshold:
+      type: integer
+      label: 'Slow request threshold (ms)'
+    slow_query_threshold:
+      type: integer
+      label: 'Slow query threshold (ms)'
+    high_memory_threshold:
+      type: integer
+      label: 'High memory threshold (bytes)'
+    large_response_threshold:
+      type: integer
+      label: 'Large response threshold (bytes)'
+    aggregate_css:
+      type: boolean
+      label: 'Aggregate CSS'
+    aggregate_js:
+      type: boolean
+      label: 'Aggregate JavaScript'
+    defer_js:
+      type: boolean
+      label: 'Defer JavaScript'
+    lazy_load_js:
+      type: boolean
+      label: 'Lazy load non-critical JavaScript'
+    inline_critical_css:
+      type: boolean
+      label: 'Inline critical CSS'
+    add_preload_hints:
+      type: boolean
+      label: 'Add preload/prefetch hints'
+    detect_render_blocking:
+      type: boolean
+      label: 'Detect render-blocking resources'
+    warn_missing_cache_contexts:
+      type: boolean
+      label: 'Warn about missing cache contexts'
+    warn_missing_cache_tags:
+      type: boolean
+      label: 'Warn about missing cache tags'
+    warn_short_cache_lifetime:
+      type: boolean
+      label: 'Warn about short cache lifetime'
+    short_cache_lifetime_threshold:
+      type: integer
+      label: 'Short cache lifetime threshold (seconds)'
+    seo_auto_fix:
+      type: boolean
+      label: 'Auto-fix SEO issues'
+    add_canonical_url:
+      type: boolean
+      label: 'Add canonical URL'
+    add_opengraph_tags:
+      type: boolean
+      label: 'Add OpenGraph tags'
+    add_structured_data:
+      type: boolean
+      label: 'Add structured data (JSON-LD)'
+    validate_meta_description:
+      type: boolean
+      label: 'Validate meta description'
+    validate_meta_title:
+      type: boolean
+      label: 'Validate meta title'
+    max_title_length:
+      type: integer
+      label: 'Maximum title length'
+    max_description_length:
+      type: integer
+      label: 'Maximum description length'
+    monitor_queries:
+      type: boolean
+      label: 'Monitor database queries'
+    log_slow_queries:
+      type: boolean
+      label: 'Log slow queries'
+    detect_duplicate_queries:
+      type: boolean
+      label: 'Detect duplicate queries'
+    detect_n_plus_one:
+      type: boolean
+      label: 'Detect N+1 query patterns'
+    validate_coding_standards:
+      type: boolean
+      label: 'Validate coding standards'
+    phpcs_standard:
+      type: string
+      label: 'PHPCS standard'
+    dashboard_chart_days:
+      type: integer
+      label: 'Dashboard chart days'
+    dashboard_max_log_entries:
+      type: integer
+      label: 'Dashboard max log entries'

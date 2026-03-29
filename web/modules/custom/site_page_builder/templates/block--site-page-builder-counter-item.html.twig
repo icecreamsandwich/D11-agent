@@ -1,0 +1,27 @@
+{#
+/**
+ * @file
+ * Template for the Counter Item block.
+ *
+ * Variables:
+ * - icon: Font Awesome CSS class string (e.g. "fa-solid fa-briefcase").
+ * - number: The numeric value to display (e.g. "250+").
+ * - counter_label: Descriptive label (e.g. "Projects Completed").
+ * - attributes: HTML attributes for the block wrapper.
+ */
+#}
+{{ attach_library('site_page_builder/page_builder') }}
+{{ attach_library('mahi/fontawesome6') }}
+<div{{ attributes.addClass('spb-counter') }}>
+  {% if icon %}
+    <div class="spb-counter__icon" aria-hidden="true">
+      <i class="{{ icon }}"></i>
+    </div>
+  {% endif %}
+  {% if number %}
+    <div class="spb-counter__number" aria-label="{{ number }} {{ counter_label }}">{{ number }}</div>
+  {% endif %}
+  {% if counter_label %}
+    <div class="spb-counter__label">{{ counter_label }}</div>
+  {% endif %}
+</div>

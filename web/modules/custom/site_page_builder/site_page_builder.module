@@ -1,0 +1,54 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * @file
+ * Site Page Builder module hooks.
+ */
+
+/**
+ * Implements hook_theme().
+ */
+function site_page_builder_theme(): array {
+  return [
+    'block__site_page_builder_hero_slider_block' => [
+      'variables' => [
+        'image_url'   => '',
+        'title_text'  => '',
+        'subtitle'    => '',
+        'button_text' => '',
+        'button_link' => '',
+      ],
+      'template' => 'block--site-page-builder-hero-slider',
+    ],
+    'block__site_page_builder_counter_item_block' => [
+      'variables' => [
+        'icon'          => '',
+        'number'        => '',
+        'counter_label' => '',
+      ],
+      'template' => 'block--site-page-builder-counter-item',
+    ],
+    'block__site_page_builder_call_to_action_block' => [
+      'variables' => [
+        'title_text'  => '',
+        'subtitle'    => '',
+        'button_text' => '',
+        'button_link' => '',
+        'bg_color'    => '#2563EB',
+      ],
+      'template' => 'block--site-page-builder-call-to-action',
+    ],
+    'block__site_page_builder_contact_info_block' => [
+      'variables' => [
+        'address'           => '',
+        'email'             => '',
+        'phone'             => '',
+        'business_hours'    => '',
+        'show_social_links' => FALSE,
+      ],
+      'template' => 'block--site-page-builder-contact-info',
+    ],
+  ];
+}

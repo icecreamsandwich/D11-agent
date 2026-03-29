@@ -1,0 +1,64 @@
+d11_performance_optimizer.dashboard:
+  path: '/admin/reports/performance-optimizer'
+  defaults:
+    _controller: '\Drupal\d11_performance_optimizer\Controller\AdminDashboardController::overview'
+    _title: 'Performance Optimizer Dashboard'
+  requirements:
+    _permission: 'view performance optimizer dashboard'
+
+d11_performance_optimizer.settings:
+  path: '/admin/config/system/performance-optimizer'
+  defaults:
+    _form: '\Drupal\d11_performance_optimizer\Form\SettingsForm'
+    _title: 'Performance Optimizer Settings'
+  requirements:
+    _permission: 'administer performance optimizer'
+
+d11_performance_optimizer.dashboard.performance:
+  path: '/admin/reports/performance-optimizer/performance'
+  defaults:
+    _controller: '\Drupal\d11_performance_optimizer\Controller\AdminDashboardController::performance'
+    _title: 'Performance Metrics'
+  requirements:
+    _permission: 'view performance optimizer dashboard'
+
+d11_performance_optimizer.dashboard.database:
+  path: '/admin/reports/performance-optimizer/database'
+  defaults:
+    _controller: '\Drupal\d11_performance_optimizer\Controller\AdminDashboardController::database'
+    _title: 'Database Metrics'
+  requirements:
+    _permission: 'view performance optimizer dashboard'
+
+d11_performance_optimizer.dashboard.assets:
+  path: '/admin/reports/performance-optimizer/assets'
+  defaults:
+    _controller: '\Drupal\d11_performance_optimizer\Controller\AdminDashboardController::assets'
+    _title: 'Asset Metrics'
+  requirements:
+    _permission: 'view performance optimizer dashboard'
+
+d11_performance_optimizer.dashboard.seo:
+  path: '/admin/reports/performance-optimizer/seo'
+  defaults:
+    _controller: '\Drupal\d11_performance_optimizer\Controller\AdminDashboardController::seo'
+    _title: 'SEO Issues'
+  requirements:
+    _permission: 'view performance optimizer dashboard'
+
+d11_performance_optimizer.dashboard.coding_standards:
+  path: '/admin/reports/performance-optimizer/coding-standards'
+  defaults:
+    _controller: '\Drupal\d11_performance_optimizer\Controller\AdminDashboardController::codingStandards'
+    _title: 'Coding Standards'
+  requirements:
+    _permission: 'view performance optimizer dashboard'
+
+d11_performance_optimizer.clear_metrics:
+  path: '/admin/reports/performance-optimizer/clear'
+  defaults:
+    _controller: '\Drupal\d11_performance_optimizer\Controller\AdminDashboardController::clearMetrics'
+    _title: 'Clear Metrics'
+  requirements:
+    _permission: 'administer performance optimizer'
+    _csrf_token: 'TRUE'

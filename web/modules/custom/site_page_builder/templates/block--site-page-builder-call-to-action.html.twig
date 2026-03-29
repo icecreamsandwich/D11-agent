@@ -1,0 +1,30 @@
+{#
+/**
+ * @file
+ * Template for the Call to Action block.
+ *
+ * Variables:
+ * - title_text: Heading text.
+ * - subtitle: Supporting text below the heading.
+ * - button_text: Button label.
+ * - button_link: Button URL.
+ * - bg_color: Hex background colour (e.g. "#2563EB").
+ * - attributes: HTML attributes for the block wrapper.
+ */
+#}
+{{ attach_library('site_page_builder/page_builder') }}
+<section{{ attributes.addClass('spb-cta') }}
+  {% if bg_color %}style="background-color: {{ bg_color }}"{% endif %}
+  aria-label="{{ title_text }}">
+  <div class="spb-cta__inner">
+    {% if title_text %}
+      <h2 class="spb-cta__title">{{ title_text }}</h2>
+    {% endif %}
+    {% if subtitle %}
+      <p class="spb-cta__subtitle">{{ subtitle }}</p>
+    {% endif %}
+    {% if button_text and button_link %}
+      <a href="{{ button_link }}" class="spb-cta__btn">{{ button_text }}</a>
+    {% endif %}
+  </div>
+</section>

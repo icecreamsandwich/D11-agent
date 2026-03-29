@@ -1,9 +1,12 @@
 name: 'Site Page Builder'
 type: module
-description: 'Provides content explorer views and page builder functionality.'
+description: 'Provides custom Layout Builder blocks and pre-built page layouts for About Us and Contact Us pages.'
 package: Custom
 core_version_requirement: ^11
 dependencies:
-  - drupal:views
+  - drupal:layout_builder
+  - drupal:layout_discovery
+  - drupal:block
   - drupal:node
-  - drupal:user
+  - drupal:path_alias
+  - webform:webform
