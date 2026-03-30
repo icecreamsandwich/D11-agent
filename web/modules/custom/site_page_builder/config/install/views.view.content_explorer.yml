@@ -959,6 +959,7 @@ display:
             default_group: All
             default_group_multiple: {  }
             group_items: {  }
+          granularity: day
           entity_type: node
           entity_field: created
           plugin_id: date
@@ -1391,8 +1392,7 @@ display:
     display_options:
       display_extenders: {  }
       attachment_position: before
-      displays:
-        page_1: page_1
+      displays: {  }
       inherit_arguments: false
       inherit_exposed_filters: false
       inherit_pager: false

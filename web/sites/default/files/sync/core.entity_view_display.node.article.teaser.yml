@@ -56,4 +56,5 @@ content:
 hidden:
   comment: true
   field_meta_tags: true
+  langcode: true
   layout_builder__layout: true

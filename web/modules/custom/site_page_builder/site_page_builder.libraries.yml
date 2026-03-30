@@ -3,3 +3,12 @@ page_builder:
   css:
     theme:
       css/site_page_builder.css: {}
+
+content_explorer_datepicker:
+  version: '1.0.6'
+  js:
+    js/content-explorer-datepicker.js: {}
+  dependencies:
+    - core/drupal
+    - core/once
+    - core/jquery
