@@ -1,0 +1,32 @@
+{#
+/**
+ * @file
+ * SDC template for the FinTech Benefit Item component.
+ *
+ * Props:
+ * - icon: Font Awesome 6 class string (e.g. "fa-solid fa-clock").
+ * - title: Benefit heading.
+ * - description: Supporting explanation text.
+ * - highlight: Optional metric callout shown as a pill badge.
+ */
+#}
+{{ attach_library('fintech_landing_page/fintech_page') }}
+{{ attach_library('mahi/fontawesome6') }}
+<div {{ attributes.addClass('ftb-benefit') }}>
+  {% if icon %}
+    <div class="ftb-benefit__icon-wrap" aria-hidden="true">
+      <i class="{{ icon }}"></i>
+    </div>
+  {% endif %}
+  <div class="ftb-benefit__body">
+    {% if title %}
+      <h3 class="ftb-benefit__title">{{ title }}</h3>
+    {% endif %}
+    {% if description %}
+      <p class="ftb-benefit__description">{{ description }}</p>
+    {% endif %}
+    {% if highlight %}
+      <span class="ftb-benefit__highlight">{{ highlight }}</span>
+    {% endif %}
+  </div>
+</div>

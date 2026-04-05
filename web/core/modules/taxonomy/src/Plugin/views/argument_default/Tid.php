@@ -45,7 +45,7 @@ class Tid extends ArgumentDefaultPluginBase implements CacheableDependencyInterf
    * @param string $plugin_id
    *   The plugin ID for the plugin instance.
    * @param mixed $plugin_definition
-   *   The plugin implementation definition.   *
+   *   The plugin implementation definition.
    * @param \Drupal\Core\Routing\RouteMatchInterface $route_match
    *   The route match.
    * @param \Drupal\taxonomy\VocabularyStorageInterface $vocabulary_storage
@@ -181,7 +181,7 @@ class Tid extends ArgumentDefaultPluginBase implements CacheableDependencyInterf
         }
         if (!empty($this->options['limit'])) {
           $tids = [];
-          // Filter by vocabulary
+          // Filter by vocabulary.
           foreach ($taxonomy as $tid => $vocab) {
             if (!empty($this->options['vids'][$vocab])) {
               $tids[] = $tid;

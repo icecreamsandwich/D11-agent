@@ -1,0 +1,41 @@
+$schema: 'https://git.drupalcode.org/project/sdc/-/raw/1.x/src/metadata.schema.json'
+name: 'FinTech Benefit Item'
+status: stable
+description: >
+  Card displaying a single business benefit with an icon, title, description,
+  and an optional highlight metric. Used in the Benefits section (3-column row)
+  to show the business impact of the platform. Green accent colour signals
+  positive outcomes. Examples: Save Time, Reduce Costs, Scale Easily.
+category: FinTech
+group: fintech_benefit_item
+props:
+  type: object
+  properties:
+    icon:
+      type: string
+      title: 'Icon CSS Class'
+      description: 'Font Awesome 6 class string.'
+      examples:
+        - 'fa-solid fa-clock'
+        - 'fa-solid fa-piggy-bank'
+        - 'fa-solid fa-arrow-trend-up'
+    title:
+      type: string
+      title: 'Benefit Title'
+      description: 'Short benefit heading, 2–3 words.'
+      examples:
+        - 'Save Time'
+        - 'Reduce Costs'
+        - 'Scale Easily'
+    description:
+      type: string
+      title: 'Description'
+      description: 'Two or three sentences explaining the business impact.'
+    highlight:
+      type: string
+      title: 'Highlight Metric'
+      description: 'Optional callout stat shown as a pill badge.'
+      examples:
+        - '40% faster processing'
+        - 'Save up to 30% in fees'
+        - 'Grow without limits'

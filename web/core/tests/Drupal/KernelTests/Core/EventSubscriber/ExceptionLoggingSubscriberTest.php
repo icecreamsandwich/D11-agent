@@ -7,15 +7,17 @@ namespace Drupal\KernelTests\Core\EventSubscriber;
 use Drupal\Core\DependencyInjection\ContainerBuilder;
 use Drupal\Core\Logger\RfcLogLevel;
 use Drupal\KernelTests\KernelTestBase;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use Symfony\Component\ErrorHandler\BufferingLogger;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 
 /**
  * Tests that HTTP exceptions are logged correctly.
- *
- * @group system
  */
+#[Group('system')]
+#[RunTestsInSeparateProcesses]
 class ExceptionLoggingSubscriberTest extends KernelTestBase {
 
   /**
@@ -32,9 +34,8 @@ class ExceptionLoggingSubscriberTest extends KernelTestBase {
 
   /**
    * Tests \Drupal\Core\EventSubscriber\ExceptionLoggingSubscriber::onException().
-   *
-   * @dataProvider exceptionDataProvider
    */
+  #[DataProvider('exceptionDataProvider')]
   public function testExceptionLogging(int $error_code, string $channel, int $log_level, string $exception = ''): void {
     $http_kernel = \Drupal::service('http_kernel');
 
@@ -62,11 +63,12 @@ class ExceptionLoggingSubscriberTest extends KernelTestBase {
     }
   }
 
+  /**
+   * Returns data for testing exception logging.
+   */
   public static function exceptionDataProvider(): array {
     return [
-      // When a BadRequestException is thrown, DefaultHttpExceptionSubscriber
-      // will rethrow the exception.
-      [400, 'client error', RfcLogLevel::WARNING, HttpException::class],
+      [400, 'client error', RfcLogLevel::WARNING],
       [401, 'client error', RfcLogLevel::WARNING],
       [403, 'access denied', RfcLogLevel::WARNING],
       [404, 'page not found', RfcLogLevel::WARNING],

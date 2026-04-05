@@ -164,19 +164,19 @@ abstract class AbstractNormalizer implements NormalizerInterface, DenormalizerIn
      */
     protected function isCircularReference(object $object, array &$context): bool
     {
-        $objectHash = spl_object_hash($object);
+        $objectId = spl_object_id($object);
 
         $circularReferenceLimit = $context[self::CIRCULAR_REFERENCE_LIMIT] ?? $this->defaultContext[self::CIRCULAR_REFERENCE_LIMIT];
-        if (isset($context[self::CIRCULAR_REFERENCE_LIMIT_COUNTERS][$objectHash])) {
-            if ($context[self::CIRCULAR_REFERENCE_LIMIT_COUNTERS][$objectHash] >= $circularReferenceLimit) {
-                unset($context[self::CIRCULAR_REFERENCE_LIMIT_COUNTERS][$objectHash]);
+        if (isset($context[self::CIRCULAR_REFERENCE_LIMIT_COUNTERS][$objectId])) {
+            if ($context[self::CIRCULAR_REFERENCE_LIMIT_COUNTERS][$objectId] >= $circularReferenceLimit) {
+                unset($context[self::CIRCULAR_REFERENCE_LIMIT_COUNTERS][$objectId]);
 
                 return true;
             }
 
-            ++$context[self::CIRCULAR_REFERENCE_LIMIT_COUNTERS][$objectHash];
+            ++$context[self::CIRCULAR_REFERENCE_LIMIT_COUNTERS][$objectId];
         } else {
-            $context[self::CIRCULAR_REFERENCE_LIMIT_COUNTERS][$objectHash] = 1;
+            $context[self::CIRCULAR_REFERENCE_LIMIT_COUNTERS][$objectId] = 1;
         }
 
         return false;
@@ -321,7 +321,6 @@ abstract class AbstractNormalizer implements NormalizerInterface, DenormalizerIn
 
         $constructor = $this->getConstructor($data, $class, $context, $reflectionClass, $allowedAttributes);
         if ($constructor) {
-            $context['has_constructor'] = true;
             if (true !== $constructor->isPublic()) {
                 return $reflectionClass->newInstanceWithoutConstructor();
             }
@@ -396,16 +395,22 @@ abstract class AbstractNormalizer implements NormalizerInterface, DenormalizerIn
                         continue;
                     }
 
-                    $constructorParameterType = 'unknown';
+                    $constructorParameterTypes = [];
                     $reflectionType = $constructorParameter->getType();
-                    if ($reflectionType instanceof \ReflectionNamedType) {
-                        $constructorParameterType = $reflectionType->getName();
+                    if ($reflectionType instanceof \ReflectionUnionType) {
+                        foreach ($reflectionType->getTypes() as $reflectionType) {
+                            $constructorParameterTypes[] = (string) $reflectionType;
+                        }
+                    } elseif ($reflectionType instanceof \ReflectionType) {
+                        $constructorParameterTypes[] = (string) $reflectionType;
+                    } else {
+                        $constructorParameterTypes[] = 'unknown';
                     }
 
                     $exception = NotNormalizableValueException::createForUnexpectedDataType(
                         \sprintf('Failed to create object because the class misses the "%s" property.', $constructorParameter->name),
                         null,
-                        [$constructorParameterType],
+                        $constructorParameterTypes,
                         $attributeContext['deserialization_path'] ?? null,
                         true
                     );
@@ -445,8 +450,6 @@ abstract class AbstractNormalizer implements NormalizerInterface, DenormalizerIn
                 return $reflectionClass->newInstanceWithoutConstructor();
             }
         }
-
-        unset($context['has_constructor']);
 
         if (!$reflectionClass->isInstantiable()) {
             throw NotNormalizableValueException::createForUnexpectedDataType(\sprintf('Failed to create object because the class "%s" is not instantiable.', $class), $data, ['unknown'], $context['deserialization_path'] ?? null);

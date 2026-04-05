@@ -1,0 +1,5 @@
+fintech_page:
+  version: '1.0.0'
+  css:
+    theme:
+      css/fintech_landing_page.css: {}

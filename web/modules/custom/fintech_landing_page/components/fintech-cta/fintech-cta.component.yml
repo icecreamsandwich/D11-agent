@@ -1,0 +1,44 @@
+$schema: 'https://git.drupalcode.org/project/sdc/-/raw/1.x/src/metadata.schema.json'
+name: 'FinTech Call to Action'
+status: stable
+description: >
+  Full-width call-to-action band with a customisable background colour,
+  heading, supporting text, and a button. Used as the final section of the
+  landing page to convert visitors. Background colour defaults to the platform
+  primary blue (#2563EB). Button links to the sign-up or contact page.
+  Inherited from the site_page_builder module.
+category: FinTech
+group: site_page_builder_call_to_action
+props:
+  type: object
+  properties:
+    title:
+      type: string
+      title: 'Heading'
+      examples:
+        - 'Start Accepting Payments Today'
+        - 'Join 10,000+ UAE Businesses'
+    subtitle:
+      type: string
+      title: 'Supporting Text'
+      examples:
+        - 'Open your free account in minutes. No setup fees. No contracts.'
+    button_text:
+      type: string
+      title: 'Button Label'
+      examples:
+        - 'Open Your Account'
+        - 'Get Started Free'
+    button_link:
+      type: string
+      title: 'Button URL'
+      examples:
+        - '/contact-us'
+        - '#signup'
+    bg_color:
+      type: string
+      title: 'Background Colour (hex)'
+      description: 'Hex colour code for the section background.'
+      examples:
+        - '#2563EB'
+        - '#1d4ed8'

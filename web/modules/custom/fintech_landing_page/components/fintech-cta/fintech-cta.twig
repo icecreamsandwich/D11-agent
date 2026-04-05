@@ -1,0 +1,27 @@
+{#
+/**
+ * @file
+ * SDC template for the FinTech Call to Action component.
+ *
+ * Props:
+ * - title: Section heading.
+ * - subtitle: Supporting text.
+ * - button_text: Button label.
+ * - button_link: Button URL.
+ * - bg_color: Optional hex background colour (defaults to primary blue).
+ */
+#}
+{{ attach_library('fintech_landing_page/fintech_page') }}
+<div {{ attributes.addClass('ftb-cta') }}{% if bg_color %} style="background-color: {{ bg_color }};"{% endif %}>
+  <div class="ftb-cta__inner">
+    {% if title %}
+      <h2 class="ftb-cta__title">{{ title }}</h2>
+    {% endif %}
+    {% if subtitle %}
+      <p class="ftb-cta__subtitle">{{ subtitle }}</p>
+    {% endif %}
+    {% if button_text and button_link %}
+      <a href="{{ button_link }}" class="ftb-cta__button">{{ button_text }}</a>
+    {% endif %}
+  </div>
+</div>

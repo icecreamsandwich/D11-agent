@@ -1,0 +1,16 @@
+name: 'FinTech Landing Page'
+type: module
+description: 'UAE FinTech landing page for small business owners. Provides Feature Card, Benefit Item, and Testimonial Card blocks, SDC component descriptors for Canvas AI, and a hook_install that programmatically builds the /fintech-uae page using Layout Builder.'
+package: Custom
+core_version_requirement: ^11
+dependencies:
+  - drupal:layout_builder
+  - drupal:layout_discovery
+  - drupal:block
+  - drupal:node
+  - drupal:path_alias
+  - site_page_builder:site_page_builder
+  - canvas:canvas
+  - ai:ai
+  - ai_provider_anthropic:ai_provider_anthropic
+  - key:key

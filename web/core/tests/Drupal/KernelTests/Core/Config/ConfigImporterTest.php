@@ -5,18 +5,20 @@ declare(strict_types=1);
 namespace Drupal\KernelTests\Core\Config;
 
 use Drupal\Component\Utility\Html;
-use Drupal\Component\Render\FormattableMarkup;
 use Drupal\Core\Config\ConfigCollectionEvents;
 use Drupal\Core\Config\ConfigEvents;
 use Drupal\Core\Config\ConfigImporter;
 use Drupal\Core\Config\ConfigImporterException;
+use Drupal\Core\Extension\ThemeHandlerInterface;
 use Drupal\KernelTests\KernelTestBase;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Tests importing configuration from files into active configuration.
- *
- * @group config
  */
+#[Group('config')]
+#[RunTestsInSeparateProcesses]
 class ConfigImporterTest extends KernelTestBase {
 
   /**
@@ -234,7 +236,7 @@ class ConfigImporterTest extends KernelTestBase {
 
     $logs = $config_importer->getErrors();
     $this->assertCount(1, $logs);
-    $this->assertEquals(new FormattableMarkup('Deleted and replaced configuration entity "@name"', ['@name' => $name_secondary]), $logs[0]);
+    $this->assertEquals('Deleted and replaced configuration entity "' . $name_secondary . '"', $logs[0]);
   }
 
   /**
@@ -364,7 +366,7 @@ class ConfigImporterTest extends KernelTestBase {
 
     $logs = $config_importer->getErrors();
     $this->assertCount(1, $logs);
-    $this->assertEquals(new FormattableMarkup('Update target "@name" is missing.', ['@name' => $name_dependent]), $logs[0]);
+    $this->assertEquals('Update target "' . $name_dependent . '" is missing.', $logs[0]);
   }
 
   /**
@@ -410,8 +412,9 @@ class ConfigImporterTest extends KernelTestBase {
 
     $entity_storage = \Drupal::entityTypeManager()->getStorage('config_test');
     // Both entities are deleted. ConfigTest::postSave() causes updates of the
-    // dependency entity to delete the dependent entity. Since the dependency depends on
-    // the dependent, removing the dependent causes the dependency to be removed.
+    // dependency entity to delete the dependent entity. Since the dependency
+    // depends on the dependent, removing the dependent causes the dependency to
+    // be removed.
     $this->assertNull($entity_storage->load('dependency'));
     $this->assertNull($entity_storage->load('dependent'));
     $logs = $config_importer->getErrors();
@@ -433,7 +436,8 @@ class ConfigImporterTest extends KernelTestBase {
       'label' => 'Dependency',
       'weight' => 0,
       'uuid' => $uuid->generate(),
-      // Add a dependency on dependent, to make sure this delete is synced first.
+      // Add a dependency on dependent, to make sure this delete is synced
+      // first.
       'dependencies' => [
         'config' => [$name_dependent],
       ],
@@ -943,6 +947,30 @@ class ConfigImporterTest extends KernelTestBase {
     \Drupal::configFactory()->reset($cronName);
     $this->assertEquals('Foo', $this->config($systemSiteName)->get('name'));
     $this->assertEquals(0, $this->config($cronName)->get('logging'));
+  }
+
+  /**
+   * Tests that installing a theme will reload all service dependencies.
+   */
+  public function testThemeInstallReloadsServices(): void {
+    $this->assertFalse(\Drupal::service(ThemeHandlerInterface::class)->themeExists('test_base_theme'));
+
+    $sync = $this->container->get('config.storage.sync');
+    // Ensure that the config import will install the theme.
+    $extensions = $sync->read('core.extension');
+    $extensions['theme']['test_base_theme'] = 0;
+    $sync->write('core.extension', $extensions);
+
+    $importer = $this->configImporter();
+    $property = new \ReflectionProperty($importer, 'themeHandler');
+    $old_theme_handler = $property->getValue($importer);
+    $this->assertIsObject($old_theme_handler);
+
+    $importer->import();
+    $this->assertTrue(\Drupal::service(ThemeHandlerInterface::class)->themeExists('test_base_theme'));
+    $new_theme_handler = $property->getValue($importer);
+    $this->assertIsObject($new_theme_handler);
+    $this->assertNotSame($old_theme_handler, $new_theme_handler);
   }
 
   /**
