@@ -1,0 +1,111 @@
+<?php
+
+declare(strict_types=1);
+
+use Drupal\Core\Form\FormStateInterface;
+
+/**
+ * @file
+ * Site Page Builder module hooks.
+ */
+
+/**
+ * Implements hook_theme().
+ */
+function site_page_builder_theme(): array {
+  return [
+    'block__site_page_builder_hero_slider_block' => [
+      'variables' => [
+        'image_url'   => '',
+        'title_text'  => '',
+        'subtitle'    => '',
+        'button_text' => '',
+        'button_link' => '',
+      ],
+      'template' => 'block--site-page-builder-hero-slider',
+    ],
+    'block__site_page_builder_counter_item_block' => [
+      'variables' => [
+        'icon'          => '',
+        'number'        => '',
+        'counter_label' => '',
+      ],
+      'template' => 'block--site-page-builder-counter-item',
+    ],
+    'block__site_page_builder_call_to_action_block' => [
+      'variables' => [
+        'title_text'  => '',
+        'subtitle'    => '',
+        'button_text' => '',
+        'button_link' => '',
+        'bg_color'    => '#2563EB',
+      ],
+      'template' => 'block--site-page-builder-call-to-action',
+    ],
+    'block__site_page_builder_contact_info_block' => [
+      'variables' => [
+        'address'           => '',
+        'email'             => '',
+        'phone'             => '',
+        'business_hours'    => '',
+        'show_social_links' => FALSE,
+      ],
+      'template' => 'block--site-page-builder-contact-info',
+    ],
+  ];
+}
+
+/**
+ * Implements hook_preprocess_field().
+ *
+ * Guards against taxonomy terms with null labels being passed as link text
+ * to LinkGenerator, which causes a TypeError in Html::escape().
+ */
+function site_page_builder_preprocess_field(array &$variables): void {
+  if ($variables['field_type'] !== 'entity_reference') {
+    return;
+  }
+  foreach ($variables['items'] as $delta => $item) {
+    if (isset($item['content']['#type'])
+        && $item['content']['#type'] === 'link'
+        && !isset($item['content']['#title'])) {
+      unset($variables['items'][$delta]);
+    }
+  }
+}
+
+/**
+ * Implements hook_form_views_exposed_form_alter().
+ *
+ * Upgrades the "Authored on" (created) min/max filter fields on the
+ * Content Explorer page display to HTML5 datetime-local pickers.
+ * A small JS behaviour handles min ≤ max enforcement and rewrites the
+ * submitted value to the "CCYY-MM-DD HH:MM:SS" format Drupal expects.
+ */
+function site_page_builder_form_views_exposed_form_alter(array &$form, FormStateInterface $form_state): void {
+  // Only act on the content_explorer page display exposed form.
+  if (($form['#id'] ?? '') !== 'views-exposed-form-content-explorer-page-1') {
+    return;
+  }
+  
+
+  // The date filter with operator "between" nests its inputs under the
+  // exposed identifier key: $form['created']['min'] / ['max'].
+  foreach (['min', 'max'] as $bound) {
+    if (!isset($form['created'][$bound])) {
+      continue;
+    }
+    // Switch to a native datetime-local picker.
+    $form['created'][$bound]['#attributes']['type'] = 'datetime-local';
+    // step="1" makes browsers expose the seconds field so the full
+    // HH:MM:SS portion is captured.
+    $form['created'][$bound]['#attributes']['step'] = '1';
+    $form['created'][$bound]['#attributes']['placeholder'] = 'YYYY-MM-DD HH:MM:SS';
+    // Remove the fixed size so the browser sizes the control naturally.
+    $form['created'][$bound]['#size'] = NULL;
+  }
+
+  // Attach the behaviour that enforces min ≤ max and normalises the
+  // submitted value to "CCYY-MM-DD HH:MM:SS" before the form posts.
+  $form['#attached']['library'][] = 'site_page_builder/content_explorer_datepicker';
+}

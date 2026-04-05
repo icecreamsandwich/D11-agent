@@ -1,0 +1,43 @@
+{#
+/**
+ * @file
+ * Template for the FinTech Testimonial Card block.
+ *
+ * Variables:
+ * - quote: The customer testimonial text.
+ * - author_name: Full name of the customer.
+ * - author_role: Role and/or business name of the customer.
+ * - rating: Integer 1–5 for star display.
+ * - attributes: HTML attributes for the block wrapper.
+ */
+#}
+{{ attach_library('fintech_landing_page/fintech_page') }}
+{{ attach_library('mahi/fontawesome6') }}
+<div{{ attributes.addClass('ftb-testimonial') }}>
+  {% if rating %}
+    <div class="ftb-testimonial__stars" aria-label="{{ rating }} out of 5 stars">
+      {% for i in 1..5 %}
+        <i class="fa-solid fa-star{% if i > rating %} ftb-testimonial__star--empty{% endif %}"
+           aria-hidden="true"></i>
+      {% endfor %}
+    </div>
+  {% endif %}
+  {% if quote %}
+    <blockquote class="ftb-testimonial__quote">
+      <p>"{{ quote }}"</p>
+    </blockquote>
+  {% endif %}
+  <div class="ftb-testimonial__author">
+    <div class="ftb-testimonial__author-avatar" aria-hidden="true">
+      <i class="fa-solid fa-user"></i>
+    </div>
+    <div class="ftb-testimonial__author-info">
+      {% if author_name %}
+        <strong class="ftb-testimonial__name">{{ author_name }}</strong>
+      {% endif %}
+      {% if author_role %}
+        <span class="ftb-testimonial__role">{{ author_role }}</span>
+      {% endif %}
+    </div>
+  </div>
+</div>

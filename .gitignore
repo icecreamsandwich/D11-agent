@@ -63,3 +63,6 @@
 /drush
 /drupal.phar
 /drupal
+
+/.claude
+/backups

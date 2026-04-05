@@ -1,0 +1,23 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.article
+  module:
+    - metatag
+    - node
+id: node__article
+label: 'Content: Article'
+tags:
+  title: '[node:title] - [node:type-name]'
+  description: '[node:summary]'
+  abstract: ''
+  keywords: ''
+  robots: ''
+  canonical_url: '[node:url]'
+  og_title: '[node:title]'
+  og_description: '[node:summary]'
+  og_url: '[node:url]'
+  og_type: article
+  og_site_name: '[site:name]'
+  og_updated_time: '[node:changed:html_datetime]'

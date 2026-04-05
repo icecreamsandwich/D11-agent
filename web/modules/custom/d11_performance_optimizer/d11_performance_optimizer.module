@@ -1,0 +1,146 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * @file
+ * D11 Performance Optimizer module hooks.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function d11_performance_optimizer_help(string $route_name, RouteMatchInterface $route_match): string {
+  return match ($route_name) {
+    'help.page.d11_performance_optimizer' => '<p>' . t('Automatically improves Drupal 11 site performance, rendering efficiency, asset optimization, SEO readiness, and enforces coding standards. Visit the <a href=":url">Performance Optimizer Dashboard</a> for metrics and recommendations.', [':url' => \Drupal\Core\Url::fromRoute('d11_performance_optimizer.dashboard')->toString()]) . '</p>',
+    default => '',
+  };
+}
+
+/**
+ * Implements hook_page_attachments_alter().
+ */
+function d11_performance_optimizer_page_attachments_alter(array &$attachments): void {
+  $config = \Drupal::config('d11_performance_optimizer.settings');
+
+  if (!$config->get('enable_css_optimization') && !$config->get('enable_js_optimization') && !$config->get('enable_seo_optimization')) {
+    return;
+  }
+
+  /** @var \Drupal\d11_performance_optimizer\Service\SEOOptimizationService $seo */
+  $seo = \Drupal::service('d11_performance_optimizer.seo_optimization');
+  $seo->processAttachments($attachments);
+
+  _d11_performance_optimizer_optimize_assets($attachments, $config);
+}
+
+/**
+ * Optimizes CSS and JS assets attached to the page.
+ *
+ * @param array $attachments
+ *   The page attachments array, passed by reference.
+ * @param \Drupal\Core\Config\ImmutableConfig $config
+ *   The module configuration.
+ */
+function _d11_performance_optimizer_optimize_assets(array &$attachments, \Drupal\Core\Config\ImmutableConfig $config): void {
+  if (empty($attachments['#attached']['html_head'])) {
+    return;
+  }
+
+  $largeAssetThreshold = (int) $config->get('large_asset_threshold');
+  $issues = [];
+
+  foreach ($attachments['#attached']['html_head'] as $key => $element) {
+    if (!isset($element[0]['#tag'])) {
+      continue;
+    }
+    // Detect render-blocking scripts in <head>.
+    if ($element[0]['#tag'] === 'script' && empty($element[0]['#attributes']['defer']) && empty($element[0]['#attributes']['async'])) {
+      $issues[] = 'Render-blocking script detected in <head>: consider adding defer or async.';
+      if ($config->get('defer_javascript')) {
+        $attachments['#attached']['html_head'][$key][0]['#attributes']['defer'] = TRUE;
+      }
+    }
+  }
+
+  if (!empty($issues)) {
+    \Drupal::logger('d11_performance_optimizer')->notice('Asset optimization issues: @issues', [
+      '@issues' => implode('; ', $issues),
+    ]);
+  }
+}
+
+/**
+ * Implements hook_cron().
+ */
+function d11_performance_optimizer_cron(): void {
+  $config = \Drupal::config('d11_performance_optimizer.settings');
+  $database = \Drupal::database();
+  $retentionDays = (int) $config->get('log_retention_days');
+  $cutoff = \Drupal::time()->getRequestTime() - ($retentionDays * 86400);
+
+  // Purge old performance logs.
+  $database->delete('d11_performance_logs')
+    ->condition('timestamp', $cutoff, '<')
+    ->execute();
+
+  $metricsRetention = (int) $config->get('metrics_retention_days');
+  $metricsCutoff = \Drupal::time()->getRequestTime() - ($metricsRetention * 86400);
+
+  $database->delete('d11_performance_metrics')
+    ->condition('timestamp', $metricsCutoff, '<')
+    ->execute();
+
+  $database->delete('d11_slow_queries')
+    ->condition('timestamp', $cutoff, '<')
+    ->execute();
+
+  \Drupal::logger('d11_performance_optimizer')->info('Performance optimizer cron: purged old metrics and logs.');
+}
+
+/**
+ * Implements hook_preprocess_field().
+ *
+ * Guards against taxonomy terms with null labels being passed as link text
+ * to LinkGenerator, which causes a TypeError in Html::escape().
+ */
+function d11_performance_optimizer_preprocess_field(array &$variables): void {
+  if ($variables['field_type'] !== 'entity_reference') {
+    return;
+  }
+  foreach ($variables['items'] as $delta => $item) {
+    if (isset($item['content']['#type'])
+        && $item['content']['#type'] === 'link'
+        && !isset($item['content']['#title'])) {
+      unset($variables['items'][$delta]);
+    }
+  }
+}
+
+/**
+ * Implements hook_toolbar().
+ */
+function d11_performance_optimizer_toolbar(): array {
+  $items = [];
+  if (!\Drupal::currentUser()->hasPermission('view performance optimizer dashboard')) {
+    return $items;
+  }
+
+  $items['d11_performance_optimizer'] = [
+    '#type' => 'toolbar_item',
+    'tab' => [
+      '#type' => 'link',
+      '#title' => t('Perf'),
+      '#url' => \Drupal\Core\Url::fromRoute('d11_performance_optimizer.dashboard'),
+      '#attributes' => [
+        'title' => t('Performance Optimizer Dashboard'),
+        'class' => ['toolbar-icon', 'toolbar-icon-performance'],
+      ],
+    ],
+    '#weight' => 200,
+  ];
+
+  return $items;
+}

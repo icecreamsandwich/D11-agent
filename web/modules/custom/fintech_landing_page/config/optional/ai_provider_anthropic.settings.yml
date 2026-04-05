@@ -1,0 +1,9 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - ai_provider_anthropic
+    - key
+  config:
+    - key.key.anthropic_api_key
+api_key: anthropic_api_key

@@ -1,8 +1,8 @@
 _core:
   default_config_hash: ijfbzDTN4CbE7Sr-6ubWzy_t1vH4OtU1doNCLssVz-4
-langcode: en-gb
-uuid: e5bd2cbe-0674-4f50-8aa7-8c54765611de
-name: D-11
+langcode: en
+uuid: 5d4585c3-6a40-4e40-8378-d53f6c7ddc7d
+name: 'D11 site'
 mail: muneebkt@gmail.com
 slogan: ''
 page:
@@ -11,5 +11,5 @@ page:
   front: /node
 admin_compact_mode: false
 weight_select_max: 100
-default_langcode: en-gb
+default_langcode: en
 mail_notification: null

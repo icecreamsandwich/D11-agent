@@ -8,12 +8,14 @@ use Drupal\KernelTests\KernelTestBase;
 use Drupal\language\Entity\ConfigurableLanguage;
 use Drupal\locale\StringInterface;
 use Drupal\locale\TranslationString;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 
 /**
  * Tests that shipped configuration translations are updated correctly.
- *
- * @group locale
  */
+#[Group('locale')]
+#[RunTestsInSeparateProcesses]
 class LocaleConfigSubscriberTest extends KernelTestBase {
 
   /**
@@ -120,8 +122,22 @@ class LocaleConfigSubscriberTest extends KernelTestBase {
   public function testCreateTranslationMultiValue(): void {
     $config_name = 'locale_test.translation_multiple';
 
-    $this->saveLanguageOverride($config_name, 'test_multiple', ['string' => 'String (German)', 'another_string' => 'Another string (German)'], 'de');
-    $this->saveLanguageOverride($config_name, 'test_after_multiple', ['string' => 'After string (German)', 'another_string' => 'After another string (German)'], 'de');
+    $this->saveLanguageOverride(
+      $config_name,
+      'test_multiple',
+      [
+        'string' => 'String (German)',
+        'another_string' => 'Another string (German)',
+      ],
+      'de');
+    $this->saveLanguageOverride(
+      $config_name,
+      'test_after_multiple',
+      [
+        'string' => 'After string (German)',
+        'another_string' => 'After another string (German)',
+      ],
+      'de');
     $strings = $this->stringStorage->getTranslations([
       'type' => 'configuration',
       'name' => $config_name,

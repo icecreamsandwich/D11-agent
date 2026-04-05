@@ -1,0 +1,32 @@
+{#
+/**
+ * @file
+ * Template for the Hero Slider block.
+ *
+ * Variables:
+ * - image_url: Background image URL.
+ * - title_text: Hero heading text.
+ * - subtitle: Subtitle / description text.
+ * - button_text: CTA button label.
+ * - button_link: CTA button URL.
+ * - attributes: HTML attributes for the block wrapper.
+ */
+#}
+{{ attach_library('site_page_builder/page_builder') }}
+<div{{ attributes.addClass('spb-hero') }}
+  {% if image_url %}style="background-image: url('{{ image_url }}')"{% endif %}
+  role="banner"
+  aria-label="{{ title_text }}">
+  <div class="spb-hero__overlay" aria-hidden="true"></div>
+  <div class="spb-hero__content">
+    {% if title_text %}
+      <h1 class="spb-hero__title">{{ title_text }}</h1>
+    {% endif %}
+    {% if subtitle %}
+      <p class="spb-hero__subtitle">{{ subtitle }}</p>
+    {% endif %}
+    {% if button_text and button_link %}
+      <a href="{{ button_link }}" class="spb-hero__cta-btn">{{ button_text }}</a>
+    {% endif %}
+  </div>
+</div>

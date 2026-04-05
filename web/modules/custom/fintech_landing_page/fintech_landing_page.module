@@ -1,0 +1,47 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * @file
+ * FinTech Landing Page module hooks.
+ *
+ * Registers theme hooks for the three new block plugins:
+ *  - FeatureCardBlock   → block__fintech_feature_card_block
+ *  - BenefitItemBlock   → block__fintech_benefit_item_block
+ *  - TestimonialCardBlock → block__fintech_testimonial_card_block
+ */
+
+/**
+ * Implements hook_theme().
+ */
+function fintech_landing_page_theme(): array {
+  return [
+    'block__fintech_feature_card_block' => [
+      'variables' => [
+        'icon'        => '',
+        'title_text'  => '',
+        'description' => '',
+      ],
+      'template' => 'block--fintech-feature-card',
+    ],
+    'block__fintech_benefit_item_block' => [
+      'variables' => [
+        'icon'        => '',
+        'title_text'  => '',
+        'description' => '',
+        'highlight'   => '',
+      ],
+      'template' => 'block--fintech-benefit-item',
+    ],
+    'block__fintech_testimonial_card_block' => [
+      'variables' => [
+        'quote'       => '',
+        'author_name' => '',
+        'author_role' => '',
+        'rating'      => 5,
+      ],
+      'template' => 'block--fintech-testimonial-card',
+    ],
+  ];
+}

@@ -1,0 +1,386 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * @file
+ * Install, update and uninstall functions for the FinTech Landing Page module.
+ *
+ * hook_install() programmatically builds the Layout Builder sections for a
+ * UAE FinTech landing page at /fintech-uae, following the identical pattern
+ * established in site_page_builder.install for the About Us and Contact Us
+ * pages.
+ *
+ * Page structure:
+ *  Section 1 — Hero (layout_onecol)
+ *  Section 2 — Features (site_page_builder_fourcol, 4 × FeatureCardBlock)
+ *  Section 3 — Benefits (layout_threecol_33_34_33, 3 × BenefitItemBlock)
+ *  Section 4 — Testimonials (layout_threecol_33_34_33, 3 × TestimonialCardBlock)
+ *  Section 5 — Statistics (site_page_builder_fourcol, 4 × CounterItemBlock)
+ *  Section 6 — Final CTA (layout_onecol, CallToActionBlock)
+ */
+
+use Drupal\layout_builder\Section;
+use Drupal\layout_builder\SectionComponent;
+use Drupal\node\Entity\Node;
+use Drupal\path_alias\Entity\PathAlias;
+
+/**
+ * Implements hook_install().
+ */
+function fintech_landing_page_install(): void {
+  _fintech_ensure_fintech_page_node();
+  _fintech_setup_fintech_page_layout();
+}
+
+// ---------------------------------------------------------------------------
+// Internal helpers
+// ---------------------------------------------------------------------------
+
+/**
+ * Returns a new UUID string.
+ */
+function _fintech_uuid(): string {
+  return \Drupal::service('uuid')->generate();
+}
+
+/**
+ * Creates the /fintech-uae node if it does not yet exist.
+ */
+function _fintech_ensure_fintech_page_node(): void {
+  // If a node with alias /fintech-uae already exists, nothing to do.
+  $alias_manager = \Drupal::service('path_alias.manager');
+  $system_path = $alias_manager->getPathByAlias('/fintech-uae');
+
+  if ($system_path !== '/fintech-uae') {
+    // Alias already resolves to a node.
+    \Drupal::logger('fintech_landing_page')->info(
+      'Node for /fintech-uae already exists — skipping node creation.'
+    );
+    return;
+  }
+
+  // Create the page node.
+  $node = Node::create([
+    'type'   => 'page',
+    'title'  => 'FinTech Payments Platform — UAE Small Businesses',
+    'status' => 1,
+    'uid'    => 1,
+  ]);
+  $node->save();
+
+  // Assign the URL alias.
+  $path_alias = PathAlias::create([
+    'path'  => '/node/' . $node->id(),
+    'alias' => '/fintech-uae',
+  ]);
+  $path_alias->save();
+
+  \Drupal::logger('fintech_landing_page')->info(
+    'Created FinTech landing page node @nid at /fintech-uae.',
+    ['@nid' => $node->id()]
+  );
+}
+
+/**
+ * Programmatically builds the Layout Builder sections for /fintech-uae.
+ */
+function _fintech_setup_fintech_page_layout(): void {
+  // Load the node via its alias.
+  $alias_manager = \Drupal::service('path_alias.manager');
+  $system_path = $alias_manager->getPathByAlias('/fintech-uae');
+
+  if ($system_path === '/fintech-uae') {
+    \Drupal::logger('fintech_landing_page')->warning(
+      'Could not locate /fintech-uae node — layout setup skipped.'
+    );
+    return;
+  }
+
+  $parts = explode('/', trim($system_path, '/'));
+  if (count($parts) !== 2 || $parts[0] !== 'node' || !ctype_digit($parts[1])) {
+    \Drupal::logger('fintech_landing_page')->warning(
+      'Unexpected system path "@path" for /fintech-uae — layout setup skipped.',
+      ['@path' => $system_path]
+    );
+    return;
+  }
+
+  /** @var \Drupal\node\NodeInterface|null $node */
+  $node = \Drupal::entityTypeManager()->getStorage('node')->load((int) $parts[1]);
+  if (!$node) {
+    \Drupal::logger('fintech_landing_page')->warning(
+      'Node @nid not found — layout setup skipped.',
+      ['@nid' => $parts[1]]
+    );
+    return;
+  }
+
+  /** @var \Drupal\layout_builder\Field\LayoutSectionItemList $layout_field */
+  $layout_field = $node->get('layout_builder__layout');
+
+  if (!$layout_field->isEmpty()) {
+    \Drupal::logger('fintech_landing_page')->info(
+      'FinTech page node @nid already has layout sections — skipping.',
+      ['@nid' => $node->id()]
+    );
+    return;
+  }
+
+  // -------------------------------------------------------------------
+  // Section 1 — Hero (1 column, full width)
+  // -------------------------------------------------------------------
+  $hero_uuid = _fintech_uuid();
+  $hero_component = new SectionComponent(
+    $hero_uuid,
+    'content',
+    [
+      'id'            => 'site_page_builder_hero_slider',
+      'label'         => 'FinTech Hero',
+      'label_display' => FALSE,
+      'image_url'     => '',
+      'title'         => 'Simplify Your Payments',
+      'subtitle'      => 'Accept multi-currency payments instantly — secure, seamless, and built for UAE small businesses.',
+      'button_text'   => 'Get Started',
+      'button_link'   => '/contact-us',
+    ]
+  );
+  $section1 = new Section(
+    'layout_onecol',
+    ['column_widths' => ''],
+    [$hero_uuid => $hero_component]
+  );
+
+  // -------------------------------------------------------------------
+  // Section 2 — Features (4 equal columns)
+  // -------------------------------------------------------------------
+  $feature_data = [
+    'first' => [
+      'icon'        => 'fa-solid fa-bolt',
+      'title'       => 'Instant Payments',
+      'description' => 'Send and receive payments in real time with immediate settlement — no waiting, no delays, no matter the amount.',
+    ],
+    'second' => [
+      'icon'        => 'fa-solid fa-globe',
+      'title'       => 'Multi-Currency Support',
+      'description' => 'Accept AED, USD, EUR, GBP and 30+ currencies with automatic conversion at competitive exchange rates.',
+    ],
+    'third' => [
+      'icon'        => 'fa-solid fa-shield-halved',
+      'title'       => 'Bank-Grade Security',
+      'description' => 'Every transaction is protected with PCI-DSS Level 1 compliance, end-to-end encryption, and 3D Secure authentication.',
+    ],
+    'fourth' => [
+      'icon'        => 'fa-solid fa-plug',
+      'title'       => 'Easy Integration',
+      'description' => 'Connect via REST API, ready-made plugins for popular platforms, or our no-code payment link — live in under an hour.',
+    ],
+  ];
+
+  $feature_components = [];
+  foreach ($feature_data as $region => $data) {
+    $uuid = _fintech_uuid();
+    $feature_components[$uuid] = new SectionComponent(
+      $uuid,
+      $region,
+      [
+        'id'            => 'fintech_feature_card',
+        'label'         => $data['title'],
+        'label_display' => FALSE,
+        'icon'          => $data['icon'],
+        'title'         => $data['title'],
+        'description'   => $data['description'],
+      ]
+    );
+  }
+
+  $section2 = new Section(
+    'site_page_builder_fourcol',
+    [],
+    $feature_components
+  );
+
+  // -------------------------------------------------------------------
+  // Section 3 — Benefits (3 equal columns)
+  // -------------------------------------------------------------------
+  $benefit_data = [
+    'first' => [
+      'icon'        => 'fa-solid fa-clock',
+      'title'       => 'Save Time',
+      'description' => 'Automate reconciliation and payment tracking so your team stops chasing invoices and starts focusing on what matters — growing your business.',
+      'highlight'   => '40% faster processing',
+    ],
+    'second' => [
+      'icon'        => 'fa-solid fa-piggy-bank',
+      'title'       => 'Reduce Costs',
+      'description' => 'Transparent pricing with no hidden fees. Our competitive rates and volume discounts keep more money in your business where it belongs.',
+      'highlight'   => 'Save up to 30% in fees',
+    ],
+    'third' => [
+      'icon'        => 'fa-solid fa-arrow-trend-up',
+      'title'       => 'Scale Easily',
+      'description' => 'From your first sale to a million transactions, our infrastructure grows with you — no infrastructure changes, no re-negotiations.',
+      'highlight'   => 'Unlimited transaction volume',
+    ],
+  ];
+
+  $benefit_components = [];
+  foreach ($benefit_data as $region => $data) {
+    $uuid = _fintech_uuid();
+    $benefit_components[$uuid] = new SectionComponent(
+      $uuid,
+      $region,
+      [
+        'id'            => 'fintech_benefit_item',
+        'label'         => $data['title'],
+        'label_display' => FALSE,
+        'icon'          => $data['icon'],
+        'title'         => $data['title'],
+        'description'   => $data['description'],
+        'highlight'     => $data['highlight'],
+      ]
+    );
+  }
+
+  $section3 = new Section(
+    'layout_threecol_33_34_33',
+    [],
+    $benefit_components
+  );
+
+  // -------------------------------------------------------------------
+  // Section 4 — Testimonials (3 equal columns)
+  // -------------------------------------------------------------------
+  $testimonial_data = [
+    'first' => [
+      'quote'       => 'Since switching to this platform, our payment processing time dropped by 60%. Our customers love the seamless checkout — and so do we. Highly recommended for any retail business in the UAE.',
+      'author_name' => 'Ahmed Al-Rashidi',
+      'author_role' => 'Owner, Al-Rashidi Electronics — Dubai',
+      'rating'      => 5,
+    ],
+    'second' => [
+      'quote'       => 'Managing payments across our three restaurant branches used to be a nightmare. Now everything is in one dashboard with real-time reporting. It has transformed how we run the business.',
+      'author_name' => 'Sara Khalid',
+      'author_role' => 'Co-founder, Spice Route Café — Abu Dhabi',
+      'rating'      => 5,
+    ],
+    'third' => [
+      'quote'       => 'We process hundreds of deliveries a day and need payment reliability above everything. The 99.9% uptime and instant settlement have made our cash flow predictable for the first time.',
+      'author_name' => 'Khalid Al-Mansouri',
+      'author_role' => 'Operations Director, FastFreight Logistics — Sharjah',
+      'rating'      => 4,
+    ],
+  ];
+
+  $testimonial_components = [];
+  foreach ($testimonial_data as $region => $data) {
+    $uuid = _fintech_uuid();
+    $testimonial_components[$uuid] = new SectionComponent(
+      $uuid,
+      $region,
+      [
+        'id'            => 'fintech_testimonial_card',
+        'label'         => $data['author_name'],
+        'label_display' => FALSE,
+        'quote'         => $data['quote'],
+        'author_name'   => $data['author_name'],
+        'author_role'   => $data['author_role'],
+        'rating'        => $data['rating'],
+      ]
+    );
+  }
+
+  $section4 = new Section(
+    'layout_threecol_33_34_33',
+    [],
+    $testimonial_components
+  );
+
+  // -------------------------------------------------------------------
+  // Section 5 — Statistics (4 equal columns)
+  // -------------------------------------------------------------------
+  $stats_data = [
+    'first' => [
+      'icon'          => 'fa-solid fa-rocket',
+      'number'        => '60%',
+      'counter_label' => 'Faster Payments',
+    ],
+    'second' => [
+      'icon'          => 'fa-solid fa-building',
+      'number'        => '10,000+',
+      'counter_label' => 'Businesses Served',
+    ],
+    'third' => [
+      'icon'          => 'fa-solid fa-circle-check',
+      'number'        => '99.9%',
+      'counter_label' => 'Uptime SLA',
+    ],
+    'fourth' => [
+      'icon'          => 'fa-solid fa-headset',
+      'number'        => '24/7',
+      'counter_label' => 'Customer Support',
+    ],
+  ];
+
+  $stats_components = [];
+  foreach ($stats_data as $region => $data) {
+    $uuid = _fintech_uuid();
+    $stats_components[$uuid] = new SectionComponent(
+      $uuid,
+      $region,
+      [
+        'id'             => 'site_page_builder_counter_item',
+        'label'          => $data['counter_label'],
+        'label_display'  => FALSE,
+        'icon'           => $data['icon'],
+        'number'         => $data['number'],
+        'counter_label'  => $data['counter_label'],
+      ]
+    );
+  }
+
+  $section5 = new Section(
+    'site_page_builder_fourcol',
+    [],
+    $stats_components
+  );
+
+  // -------------------------------------------------------------------
+  // Section 6 — Final CTA (1 column, blue background)
+  // -------------------------------------------------------------------
+  $cta_uuid = _fintech_uuid();
+  $cta_component = new SectionComponent(
+    $cta_uuid,
+    'content',
+    [
+      'id'            => 'site_page_builder_call_to_action',
+      'label'         => 'FinTech Final CTA',
+      'label_display' => FALSE,
+      'title'         => 'Start Accepting Payments Today',
+      'subtitle'      => 'Join thousands of UAE small businesses growing with our platform. Open your free account in minutes — no setup fees, no contracts.',
+      'button_text'   => 'Open Your Account',
+      'button_link'   => '/contact-us',
+      'bg_color'      => '#2563EB',
+    ]
+  );
+  $section6 = new Section(
+    'layout_onecol',
+    ['column_widths' => ''],
+    [$cta_uuid => $cta_component]
+  );
+
+  // Append all sections.
+  $layout_field->appendSection($section1);
+  $layout_field->appendSection($section2);
+  $layout_field->appendSection($section3);
+  $layout_field->appendSection($section4);
+  $layout_field->appendSection($section5);
+  $layout_field->appendSection($section6);
+
+  $node->save();
+
+  \Drupal::logger('fintech_landing_page')->info(
+    'FinTech landing page layout built on node @nid.',
+    ['@nid' => $node->id()]
+  );
+}
