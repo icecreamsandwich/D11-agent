@@ -1,0 +1,6 @@
+services:
+  user_login_logger.user_login_subscriber:
+    class: Drupal\user_login_logger\EventSubscriber\UserLoginSubscriber
+    arguments: ['@logger.factory']
+    tags:
+      - { name: event_subscriber }
