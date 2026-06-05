@@ -1,0 +1,7 @@
+name: 'User Login Logger'
+type: module
+description: 'Logs username and user ID when a user logs in.'
+package: Custom
+core_version_requirement: ^11
+dependencies:
+  - drupal:user

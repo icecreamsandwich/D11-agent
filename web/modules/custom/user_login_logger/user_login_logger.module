@@ -1,0 +1,20 @@
+<?php
+
+/**
+ * @file
+ * Dispatches a user login event for event subscribers.
+ */
+
+declare(strict_types=1);
+
+use Drupal\user\UserInterface;
+use Drupal\user_login_logger\Event\UserLoginEvent;
+use Drupal\user_login_logger\Event\UserLoginLoggerEvents;
+
+/**
+ * Implements hook_user_login().
+ */
+function user_login_logger_user_login(UserInterface $account): void {
+  $event = new UserLoginEvent($account);
+  \Drupal::service('event_dispatcher')->dispatch($event, UserLoginLoggerEvents::USER_LOGIN);
+}
