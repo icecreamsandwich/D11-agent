@@ -13,16 +13,25 @@ set -euo pipefail
 ENVIRONMENT="${1:-production}"
 COMPOSER="composer"
 
+# Resolve the project root (one level above this script).
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
 # Detect execution context: inside DDEV container vs host machine.
 # On the host, all drush/composer calls must go through `ddev` so they
 # run inside the container where the database is reachable.
+# File paths passed to drush must also use the container-side path
+# (/var/www/html) rather than the host absolute path.
 if [[ -n "${IS_DDEV_PROJECT:-}" ]] || [[ -f /.dockerenv ]]; then
   # Already inside the container (CI or ddev ssh).
   DRUSH="./vendor/bin/drush"
+  CONTAINER_PROJECT_ROOT="$PROJECT_ROOT"
 else
   # Host machine with DDEV — proxy through ddev exec.
   DRUSH="ddev drush"
   COMPOSER="ddev composer"
+  # DDEV always mounts the project root at /var/www/html inside the container.
+  CONTAINER_PROJECT_ROOT="/var/www/html"
 fi
 
 echo "======================================================"
@@ -60,20 +69,23 @@ $DRUSH config:import --yes
 
 # 6. Import custom .po translation files for each language.
 echo "[6/9] Importing translation files..."
-# Resolve path relative to this script's location so it works from any CWD.
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-TRANSLATIONS_DIR="$SCRIPT_DIR/../translations/custom"
+# HOST_TRANSLATIONS_DIR  — used to glob .po files on the host filesystem.
+# DRUSH_TRANSLATIONS_DIR — path as seen by drush inside the container.
+HOST_TRANSLATIONS_DIR="$PROJECT_ROOT/translations/custom"
+DRUSH_TRANSLATIONS_DIR="$CONTAINER_PROJECT_ROOT/translations/custom"
 
-if [[ -d "$TRANSLATIONS_DIR" ]]; then
-  for po_file in "$TRANSLATIONS_DIR"/*.po; do
+if [[ -d "$HOST_TRANSLATIONS_DIR" ]]; then
+  for po_file in "$HOST_TRANSLATIONS_DIR"/*.po; do
     langcode=$(basename "$po_file" .po)
-    echo "  → Importing $langcode.po..."
-    $DRUSH locale:import "$langcode" "$po_file" \
+    # Build the container-side path for this .po file.
+    container_po="$DRUSH_TRANSLATIONS_DIR/$(basename "$po_file")"
+    echo "  → Importing $langcode.po (container path: $container_po)..."
+    $DRUSH locale:import "$langcode" "$container_po" \
       --type=customized \
       --override=all
   done
 else
-  echo "  No translations directory found at $TRANSLATIONS_DIR — skipping."
+  echo "  No translations directory found at $HOST_TRANSLATIONS_DIR — skipping."
 fi
 
 # 7. Rebuild caches (post config import).
