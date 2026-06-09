@@ -11,8 +11,19 @@
 set -euo pipefail
 
 ENVIRONMENT="${1:-production}"
-DRUSH="./vendor/bin/drush"
 COMPOSER="composer"
+
+# Detect execution context: inside DDEV container vs host machine.
+# On the host, all drush/composer calls must go through `ddev` so they
+# run inside the container where the database is reachable.
+if [[ -n "${IS_DDEV_PROJECT:-}" ]] || [[ -f /.dockerenv ]]; then
+  # Already inside the container (CI or ddev ssh).
+  DRUSH="./vendor/bin/drush"
+else
+  # Host machine with DDEV — proxy through ddev exec.
+  DRUSH="ddev drush"
+  COMPOSER="ddev composer"
+fi
 
 echo "======================================================"
 echo " D11 Multilingual Deploy — environment: $ENVIRONMENT"
@@ -49,7 +60,9 @@ $DRUSH config:import --yes
 
 # 6. Import custom .po translation files for each language.
 echo "[6/9] Importing translation files..."
-TRANSLATIONS_DIR="./translations/custom"
+# Resolve path relative to this script's location so it works from any CWD.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+TRANSLATIONS_DIR="$SCRIPT_DIR/../translations/custom"
 
 if [[ -d "$TRANSLATIONS_DIR" ]]; then
   for po_file in "$TRANSLATIONS_DIR"/*.po; do
