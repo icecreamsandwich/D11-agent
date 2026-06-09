@@ -1,0 +1,16 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - metatag
+id: metatag.settings
+entity_type_groups: {  }
+# Include hreflang tags on all pages and set x-default to English.
+# Configured via metatag_hreflang submodule; see metatag.metatag_defaults.global.yml.
+use_maxlength: true
+maxlength: 255
+tag_groups:
+  - basic
+  - advanced
+  - open_graph
+  - twitter_cards

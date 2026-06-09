@@ -1,0 +1,54 @@
+# Role permission mappings for the D11 multilingual workflow.
+# This file documents the intended permission set per role.
+# Apply via: drush role:perm:add <role> "<permission>"
+#
+# Roles: content_editor, translator, reviewer, publisher, site_administrator
+#
+# content_editor:
+#   - create article content
+#   - edit own article content
+#   - create page content
+#   - edit own page content
+#   - use editorial transition create_new_draft
+#   - use editorial transition submit_for_review
+#   - view translation dashboard
+#
+# translator:
+#   - translate any entity
+#   - create content translations
+#   - edit content translations
+#   - use editorial transition create_new_draft
+#   - use editorial transition submit_for_review
+#   - import po files
+#   - export po files
+#   - view translation dashboard
+#
+# reviewer:
+#   - translate any entity
+#   - edit content translations
+#   - use editorial transition request_revision
+#   - use editorial transition publish
+#   - view any unpublished content
+#   - view translation dashboard
+#
+# publisher:
+#   - manage translation jobs
+#   - translate any entity
+#   - create content translations
+#   - edit content translations
+#   - use editorial transition publish
+#   - use editorial transition archive
+#   - use editorial transition restore
+#   - view any unpublished content
+#   - administer content moderation
+#
+# site_administrator:
+#   - administer languages
+#   - administer content translation
+#   - administer interface translation
+#   - administer site configuration
+#   - administer users
+#   - administer permissions
+#   - manage translation jobs
+#   - import po files
+#   - export po files

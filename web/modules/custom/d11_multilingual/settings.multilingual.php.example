@@ -1,0 +1,59 @@
+<?php
+
+/**
+ * @file
+ * Multilingual platform settings.
+ *
+ * Include this file from settings.php or settings.local.php:
+ *   require_once __DIR__ . '/settings.multilingual.php';
+ *
+ * This file is committed to Git. Do NOT put passwords or API keys here.
+ */
+
+// ---------------------------------------------------------------------------
+// Config Split: activate the correct split per environment.
+// Override these in settings.local.php for DEV, or via environment variables.
+// ---------------------------------------------------------------------------
+$app_env = getenv('APP_ENV') ?: 'production';
+
+// All splits off by default; each environment enables only its own.
+$config['config_split.config_split.development']['status'] = FALSE;
+$config['config_split.config_split.production']['status'] = FALSE;
+
+switch ($app_env) {
+  case 'development':
+  case 'local':
+    $config['config_split.config_split.development']['status'] = TRUE;
+    break;
+
+  case 'production':
+    $config['config_split.config_split.production']['status'] = TRUE;
+    break;
+}
+
+// ---------------------------------------------------------------------------
+// Language: ensure the config sync directory is set.
+// ---------------------------------------------------------------------------
+$settings['config_sync_directory'] = '../config/sync';
+
+// ---------------------------------------------------------------------------
+// Cache: BigPipe and Dynamic Page Cache are enabled in core.extension.yml.
+// For reverse proxy / Varnish environments set the trusted host and IP here.
+// ---------------------------------------------------------------------------
+// $settings['reverse_proxy'] = TRUE;
+// $settings['reverse_proxy_addresses'] = ['10.0.0.1'];
+// $settings['reverse_proxy_trusted_headers'] = \Symfony\Component\HttpFoundation\Request::HEADER_X_FORWARDED_ALL;
+
+// ---------------------------------------------------------------------------
+// Performance: aggregate CSS/JS in non-dev environments.
+// ---------------------------------------------------------------------------
+if ($app_env === 'production') {
+  $config['system.performance']['css']['preprocess'] = TRUE;
+  $config['system.performance']['js']['preprocess'] = TRUE;
+}
+
+// ---------------------------------------------------------------------------
+// RTL: ensure the theme's RTL stylesheet is auto-detected.
+// The active theme must ship web/themes/custom/THEME/css/style.rtl.css.
+// Drupal detects rtl stylesheets automatically when dir="rtl" is on <html>.
+// ---------------------------------------------------------------------------

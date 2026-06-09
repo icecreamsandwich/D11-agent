@@ -1,0 +1,22 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+    - pathauto
+id: article_fr
+label: 'Article (French)'
+type: 'canonical_entities:node'
+pattern: '/fr/[node:title]'
+selection_criteria:
+  entity_bundle:
+    id: entity_bundle
+    negate: false
+    bundles:
+      article: article
+  entity_langcode:
+    id: entity_langcode
+    negate: false
+    langcodes:
+      fr: fr
+weight: -5

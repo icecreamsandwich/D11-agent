@@ -1,0 +1,14 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - metatag
+id: global
+label: 'Global'
+tags:
+  title: '[current-page:title] | [site:name]'
+  description: '[current-page:summary]'
+  canonical_url: '[current-page:url]'
+  # hreflang tags are rendered dynamically by d11_multilingual_preprocess_page().
+  # The x-default always points to the English canonical.
+  hreflang_xdefault: '[node:url:absolute:en]'

@@ -1,0 +1,14 @@
+langcode: en
+url:
+  source: path_prefix
+  prefixes:
+    en: en
+    fr: fr
+    de: de
+    ar: ar
+  domains: {  }
+selected_langcode: site_default
+session:
+  parameter: language
+user:
+  language_negotiation_user_admin_interface: true
