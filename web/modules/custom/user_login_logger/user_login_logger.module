@@ -34,3 +34,20 @@ function user_login_logger_node_presave(EntityInterface $node) {
     \Drupal::logger('user_login_logger')->notice('An article node is being saved: @title', ['@title' => $node->getTitle()]);
   }
 }
+
+
+/**
+ * Implements hook_entity_insert().
+ *
+ * This is just an example of another hook implementation in the same module.
+ * You can remove this if you don't need it.
+ */
+function user_login_logger_entity_insert(EntityInterface $entity) {
+  if ($entity instanceof UserInterface) {
+    // Log when a new user is created.
+    \Drupal::logger('user_login_logger')->notice('A new user account has been created: %name (uid: %uid)', [
+      '%name' => $entity->getAccountName(),
+      '%uid' => $entity->id(),
+    ]);
+  }
+}
