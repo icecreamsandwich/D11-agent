@@ -1,0 +1,31 @@
+# NOTE: this path must NOT start with /xhprof — "ddev xhprof on" adds an
+# nginx "location ^~ /xhprof" block that prefix-matches such URLs and serves
+# them as static files (raw nginx 404) instead of passing them to Drupal.
+xhprof_poc.demo:
+  path: '/profiler-poc/demo'
+  defaults:
+    _controller: '\Drupal\xhprof_poc\Controller\DemoController::demo'
+    _title: 'XHProf POC — heavy demo page'
+  requirements:
+    _permission: 'access xhprof poc'
+
+xhprof_poc.dashboard:
+  path: '/admin/reports/xhprof-poc'
+  defaults:
+    _controller: '\Drupal\xhprof_poc\Controller\DashboardController::runs'
+    _title: 'XHProf POC profiler'
+  requirements:
+    _permission: 'access xhprof poc'
+  options:
+    _admin_route: TRUE
+
+xhprof_poc.run_detail:
+  path: '/admin/reports/xhprof-poc/{run_id}'
+  defaults:
+    _controller: '\Drupal\xhprof_poc\Controller\DashboardController::detail'
+    _title: 'Profiler run detail'
+  requirements:
+    _permission: 'access xhprof poc'
+    run_id: '[A-Za-z0-9\-]+'
+  options:
+    _admin_route: TRUE

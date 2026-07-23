@@ -1,0 +1,25 @@
+services:
+  # Dedicated logger channel: every log entry from this module is tagged
+  # 'queue_demo' and filterable in /admin/reports/dblog.
+  logger.channel.queue_demo:
+    parent: logger.channel_base
+    arguments: ['queue_demo']
+
+  # Sends the confirmation email through Drupal's Mail Manager.
+  queue_demo.email_service:
+    class: Drupal\queue_demo\Service\EmailService
+    arguments:
+      - '@plugin.manager.mail'
+      - '@language_manager'
+      - '@logger.channel.queue_demo'
+
+  # Mock CRM. To go live with Salesforce later, create a SalesforceCRMService
+  # implementing CRMServiceInterface and change ONLY the class line below —
+  # no consumer code changes needed (Dependency Inversion).
+  queue_demo.crm_service:
+    class: Drupal\queue_demo\Service\MockCRMService
+    arguments:
+      - '@logger.channel.queue_demo'
+
+  # Autowiring alias: lets classes type-hint CRMServiceInterface directly.
+  Drupal\queue_demo\Service\CRMServiceInterface: '@queue_demo.crm_service'

@@ -1,0 +1,52 @@
+<?php
+
+/**
+ * @file
+ * Hooks for the SpaceX Launches module.
+ */
+
+declare(strict_types=1);
+
+/**
+ * @file
+ * Theme hooks for the SpaceX Launches module.
+ */
+
+/**
+ * Implements hook_theme().
+ */
+function spacex_launches_theme(array $existing, string $type, string $theme, string $path): array {
+  return [
+    'spacex_launches_page' => [
+      'variables' => [
+        'launches' => [],
+        'last_fetched' => NULL,
+        'error_message' => NULL,
+        'refresh_url' => NULL,
+        'pager' => [],
+      ],
+      'template' => 'spacex-launches-page',
+    ],
+  ];
+}
+
+/**
+ * Implements hook_cron().
+ */
+function spacex_launches_cron(): void {
+  $config = \Drupal::config('spacex_launches.settings');
+  $refreshInterval = max(60, ((int) $config->get('cron_refresh_interval_minutes') ?: 15) * 60);
+  $state = \Drupal::state();
+  $lastQueuedAt = (int) $state->get('spacex_launches.last_queue_time', 0);
+  $now = \Drupal::time()->getRequestTime();
+
+  if (($lastQueuedAt + $refreshInterval) > $now) {
+    return;
+  }
+
+  $queue = \Drupal::queue('spacex_launches_refresh');
+  if ($queue->numberOfItems() === 0) {
+    $queue->createItem(['queued_at' => $now]);
+    $state->set('spacex_launches.last_queue_time', $now);
+  }
+}

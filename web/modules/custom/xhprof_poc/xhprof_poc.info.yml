@@ -1,0 +1,5 @@
+name: 'XHProf Profiling POC'
+type: module
+description: 'POC: profiles a heavy demo page with XHProf + per-section timers, with a reporting dashboard.'
+package: Custom
+core_version_requirement: ^11

@@ -1,0 +1,23 @@
+spacex_launches.page:
+  path: '/spacex-launches'
+  defaults:
+    _controller: '\Drupal\spacex_launches\Controller\LaunchesController::page'
+    _title: 'SpaceX launches'
+  requirements:
+    _permission: 'access spacex launches page'
+
+spacex_launches.refresh:
+  path: '/spacex-launches/refresh'
+  defaults:
+    _controller: '\Drupal\spacex_launches\Controller\LaunchesController::refresh'
+  requirements:
+    _permission: 'access spacex launches page'
+    _csrf_token: 'TRUE'
+
+spacex_launches.settings:
+  path: '/admin/config/services/spacex-launches'
+  defaults:
+    _form: '\Drupal\spacex_launches\Form\SettingsForm'
+    _title: 'SpaceX launches settings'
+  requirements:
+    _permission: 'administer spacex launches settings'

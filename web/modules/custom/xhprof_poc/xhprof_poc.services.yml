@@ -1,0 +1,10 @@
+services:
+  xhprof_poc.profiler:
+    class: Drupal\xhprof_poc\Profiler\ProfilerService
+    arguments: ['@keyvalue', '@state', '@datetime.time']
+
+  xhprof_poc.profiler_subscriber:
+    class: Drupal\xhprof_poc\EventSubscriber\ProfilerSubscriber
+    arguments: ['@xhprof_poc.profiler', '@current_route_match']
+    tags:
+      - { name: event_subscriber }

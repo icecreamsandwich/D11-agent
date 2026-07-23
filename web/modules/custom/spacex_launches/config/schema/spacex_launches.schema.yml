@@ -1,0 +1,13 @@
+spacex_launches.settings:
+  type: config_object
+  label: 'SpaceX launches settings'
+  mapping:
+    cache_ttl_minutes:
+      type: integer
+      label: 'Cache TTL in minutes'
+    results_limit:
+      type: integer
+      label: 'Number of launches to display'
+    cron_refresh_interval_minutes:
+      type: integer
+      label: 'Cron refresh interval in minutes'

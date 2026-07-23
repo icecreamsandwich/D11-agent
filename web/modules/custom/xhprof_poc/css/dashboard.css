@@ -1,0 +1,78 @@
+/* XHProf POC dashboard styles. */
+
+.xp-status { padding: 0.6em 1em; border-radius: 4px; font-weight: 600; }
+.xp-ok    { background: #e6f4ea; color: #1e7e34; border: 1px solid #b7dfc2; }
+.xp-warn  { background: #fdf3e0; color: #9a6700; border: 1px solid #f0d8a8; }
+.xp-hint  { color: #666; font-size: 0.9em; }
+
+/* Summary cards */
+.xp-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin: 1em 0 1.5em;
+}
+.xp-card {
+  background: #fff;
+  border: 1px solid #d4d4d8;
+  border-radius: 8px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+.xp-card-value { font-size: 1.6em; font-weight: 700; line-height: 1.2; }
+.xp-card-label { color: #666; font-size: 0.85em; margin-top: 2px; }
+
+/* Waterfall */
+.xp-waterfall {
+  border: 1px solid #d4d4d8;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 1.5em;
+  background: #fff;
+}
+.xp-row { display: flex; align-items: center; margin: 6px 0; }
+.xp-row-label {
+  flex: 0 0 260px;
+  padding-right: 10px;
+  font-size: 0.85em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.xp-track {
+  position: relative;
+  flex: 1;
+  height: 22px;
+  background: repeating-linear-gradient(90deg, #f4f4f5 0 10%, #ececee 10% 10.2%);
+  border-radius: 4px;
+}
+.xp-bar {
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  border-radius: 3px;
+  min-width: 2px;
+}
+.xp-ms {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.78em;
+  color: #444;
+}
+.xp-c0 { background: #4f8ef7; }
+.xp-c1 { background: #f7734f; }
+.xp-c2 { background: #38b26f; }
+.xp-c3 { background: #a06bd6; }
+.xp-c4 { background: #e8b93c; }
+.xp-c5 { background: #4fc3d9; }
+
+/* Sortable tables */
+table.xp-sortable th { cursor: pointer; user-select: none; }
+table.xp-sortable th:hover { text-decoration: underline; }
+table.xp-sortable th.xp-sorted-asc::after  { content: " ▲"; font-size: 0.8em; }
+table.xp-sortable th.xp-sorted-desc::after { content: " ▼"; font-size: 0.8em; }
+td.xp-fn { font-family: monospace; font-size: 0.85em; word-break: break-all; }

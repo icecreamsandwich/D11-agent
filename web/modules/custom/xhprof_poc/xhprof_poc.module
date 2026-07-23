@@ -1,0 +1,23 @@
+<?php
+
+/**
+ * @file
+ * XHProf Profiling POC helper hooks.
+ */
+
+declare(strict_types=1);
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function xhprof_poc_help(string $route_name, RouteMatchInterface $route_match): ?string {
+  if ($route_name === 'help.page.xhprof_poc') {
+    return '<p>' . t('POC that profiles page rendering with XHProf and per-section timers. Visit <a href=":demo">/profiler-poc/demo</a> to trigger a heavy profiled request, then inspect it at <a href=":dash">/admin/reports/xhprof-poc</a>. Append ?xhprof_poc=1 to any uncached page to profile it. Enable the XHProf extension with "ddev xhprof on".', [
+      ':demo' => '/profiler-poc/demo',
+      ':dash' => '/admin/reports/xhprof-poc',
+    ]) . '</p>';
+  }
+  return NULL;
+}

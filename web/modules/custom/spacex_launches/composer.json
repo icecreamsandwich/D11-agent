@@ -1,0 +1,11 @@
+{
+  "name": "drupal/spacex_launches",
+  "description": "Displays recent launch data from The Space Devs Launch Library API.",
+  "type": "drupal-custom-module",
+  "license": "GPL-2.0-or-later",
+  "autoload": {
+    "psr-4": {
+      "Drupal\\spacex_launches\\": "src/"
+    }
+  }
+}

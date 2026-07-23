@@ -1,0 +1,8 @@
+access spacex launches page:
+  title: 'Access SpaceX launches page'
+  description: 'View the SpaceX launches listing page.'
+
+administer spacex launches settings:
+  title: 'Administer SpaceX launches settings'
+  description: 'Configure API cache TTL and result limits for SpaceX launches.'
+  restrict access: true

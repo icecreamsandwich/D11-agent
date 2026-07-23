@@ -1,0 +1,3 @@
+access xhprof poc:
+  title: 'Access XHProf POC demo page and profiler reports'
+  restrict access: true

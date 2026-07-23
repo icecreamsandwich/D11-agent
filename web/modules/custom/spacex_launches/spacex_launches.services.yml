@@ -1,0 +1,14 @@
+services:
+  logger.channel.spacex_lauches:
+    parent: logger.channel_base
+    arguments: ['spacex_lauches']
+
+  spacex_launches.api:
+    class: Drupal\spacex_launches\Service\LaunchesApiService
+    arguments:
+      - '@http_client'
+      - '@cache.default'
+      - '@cache_tags.invalidator'
+      - '@config.factory'
+      - '@datetime.time'
+      - '@logger.channel.spacex_lauches'
