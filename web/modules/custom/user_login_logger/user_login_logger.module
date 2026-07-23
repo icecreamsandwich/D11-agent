@@ -35,7 +35,6 @@ function user_login_logger_node_presave(EntityInterface $node) {
   }
 }
 
-
 /**
  * Implements hook_entity_insert().
  *
