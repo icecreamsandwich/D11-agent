@@ -1,7 +1,9 @@
-<?php 
+<?php
 
-
-use Drupal\Core\Routing\RouteMatchInterface;
+/**
+ * @file
+ * Hooks for the Custom Access Prodact module.
+ */
 
 /**
  * Implements hook_theme().
@@ -10,7 +12,8 @@ function custom_access_prodact_theme($existing, $type, $theme, $path) {
   return [
     'custom_page' => [
       'variables' => ['data' => NULL],
-      'template' => 'custom-page', // maps to templates/custom-page.html.twig
+  // Maps to templates/custom-page.html.twig.
+      'template' => 'custom-page',
       'path' => \Drupal::service('extension.path.resolver')->getPath('module', 'custom_access_prodact') . '/templates',
     ],
 

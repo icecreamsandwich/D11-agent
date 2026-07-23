@@ -20,8 +20,18 @@ use Drupal\d11_performance_optimizer\Service\CodingStandardsValidatorService;
  */
 final class CodingStandardsValidatorServiceTest extends UnitTestCase {
 
+  /**
+   * The service under test.
+   *
+   * @var \Drupal\d11_performance_optimizer\Service\CodingStandardsValidatorService
+   */
   private CodingStandardsValidatorService $service;
 
+  /**
+   * Temporary directory used for fixture files.
+   *
+   * @var string
+   */
   private string $tmpDir;
 
   /**

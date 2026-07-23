@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * Hooks for the Site Page Builder module.
+ */
+
 declare(strict_types=1);
 
 use Drupal\Core\Form\FormStateInterface;
@@ -87,7 +92,6 @@ function site_page_builder_form_views_exposed_form_alter(array &$form, FormState
   if (($form['#id'] ?? '') !== 'views-exposed-form-content-explorer-page-1') {
     return;
   }
-  
 
   // The date filter with operator "between" nests its inputs under the
   // exposed identifier key: $form['created']['min'] / ['max'].

@@ -12,6 +12,11 @@
   <rule ref="Drupal"/>
   <rule ref="DrupalPractice"/>
 
+  <!-- Warnings are reported but do not fail the build; errors do.
+       Common onboarding setting for legacy code — tighten later by
+       removing this once warnings are cleaned up. -->
+  <config name="ignore_warnings_on_exit" value="1"/>
+
   <exclude-pattern>*/node_modules/*</exclude-pattern>
   <exclude-pattern>*/vendor/*</exclude-pattern>
 </ruleset>

@@ -17,14 +17,14 @@ final class PerformanceAnalyzerService {
   /**
    * Stores per-request timing markers.
    *
-   * @var array<string, float>
+   * @var array<string,float>
    */
   private array $timers = [];
 
   /**
    * Accumulated metrics for the current request.
    *
-   * @var array<string, mixed>
+   * @var array<string,mixed>
    */
   private array $metrics = [];
 
@@ -153,7 +153,8 @@ final class PerformanceAnalyzerService {
    * @param int $hours
    *   How many hours back to aggregate.
    *
-   * @return array<string, mixed>
+   * @return array<string,mixed>
+   *   An associative array of results.
    */
   public function getAggregatedMetrics(int $hours = 24): array {
     $since = time() - ($hours * 3600);
@@ -225,7 +226,8 @@ final class PerformanceAnalyzerService {
    * @param int $limit
    *   Number of rows to return.
    *
-   * @return array<int, object>
+   * @return array<int,object>
+   *   A list of result items.
    */
   public function getRecentMetrics(int $limit = 50): array {
     try {

@@ -1,0 +1,97 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Function _campaign_winner_selection_get_winners\(\) should return array\|bool but return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: web/modules/custom/campaign_winner_selection/campaign_winner_selection.module
+
+		-
+			message: '#^Variable \$message_body might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: web/modules/custom/campaign_winner_selection/campaign_winner_selection.module
+
+		-
+			message: '#^Variable \$subject might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: web/modules/custom/campaign_winner_selection/campaign_winner_selection.module
+
+		-
+			message: '#^\\Drupal calls should be avoided in classes, use dependency injection instead$#'
+			identifier: globalDrupalDependencyInjection.useDependencyInjection
+			count: 5
+			path: web/modules/custom/campaign_winner_selection/src/Form/ConfirmForm.php
+
+		-
+			message: '#^\\Drupal calls should be avoided in classes, use dependency injection instead$#'
+			identifier: globalDrupalDependencyInjection.useDependencyInjection
+			count: 2
+			path: web/modules/custom/campaign_winner_selection/src/Form/SelectWinnersForm.php
+
+		-
+			message: '#^\\Drupal calls should be avoided in classes, use dependency injection instead$#'
+			identifier: globalDrupalDependencyInjection.useDependencyInjection
+			count: 2
+			path: web/modules/custom/campaign_winner_selection/src/Form/SendEmailForm.php
+
+		-
+			message: '#^\\Drupal calls should be avoided in classes, use dependency injection instead$#'
+			identifier: globalDrupalDependencyInjection.useDependencyInjection
+			count: 5
+			path: web/modules/custom/d11_performance_optimizer/src/Controller/AdminDashboardController.php
+
+		-
+			message: '#^\\Drupal calls should be avoided in classes, use dependency injection instead$#'
+			identifier: globalDrupalDependencyInjection.useDependencyInjection
+			count: 1
+			path: web/modules/custom/d11_performance_optimizer/src/EventSubscriber/RequestPerformanceSubscriber.php
+
+		-
+			message: '#^Drupal\\Core\\DependencyInjection\\DependencySerializationTrait does not support private properties\.$#'
+			identifier: dependencySerializationTraitProperty.unsupportedPrivateProperty
+			count: 2
+			path: web/modules/custom/d11_performance_optimizer/src/Plugin/Block/PerformanceSummaryBlock.php
+
+		-
+			message: '#^Read\-only properties are incompatible with Drupal\\Core\\DependencyInjection\\DependencySerializationTrait\.$#'
+			identifier: dependencySerializationTraitProperty.unsupportedReadOnlyProperty
+			count: 2
+			path: web/modules/custom/d11_performance_optimizer/src/Plugin/Block/PerformanceSummaryBlock.php
+
+		-
+			message: '#^\\Drupal calls should be avoided in classes, use dependency injection instead$#'
+			identifier: globalDrupalDependencyInjection.useDependencyInjection
+			count: 1
+			path: web/modules/custom/d11_performance_optimizer/src/Service/PerformanceAnalyzerService.php
+
+		-
+			message: '#^\\Drupal calls should be avoided in classes, use dependency injection instead$#'
+			identifier: globalDrupalDependencyInjection.useDependencyInjection
+			count: 2
+			path: web/modules/custom/d11_performance_optimizer/src/Service/SEOOptimizationService.php
+
+		-
+			message: '#^Drupal\\Core\\DependencyInjection\\DependencySerializationTrait does not support private properties\.$#'
+			identifier: dependencySerializationTraitProperty.unsupportedPrivateProperty
+			count: 3
+			path: web/modules/custom/queue_demo/src/Form/ContactForm.php
+
+		-
+			message: '#^Read\-only properties are incompatible with Drupal\\Core\\DependencyInjection\\DependencySerializationTrait\.$#'
+			identifier: dependencySerializationTraitProperty.unsupportedReadOnlyProperty
+			count: 3
+			path: web/modules/custom/queue_demo/src/Form/ContactForm.php
+
+		-
+			message: '#^Drupal\\Core\\DependencyInjection\\DependencySerializationTrait does not support private properties\.$#'
+			identifier: dependencySerializationTraitProperty.unsupportedPrivateProperty
+			count: 3
+			path: web/modules/custom/spacex_launches/src/Plugin/Block/SpacexLaunchesBlock.php
+
+		-
+			message: '#^Read\-only properties are incompatible with Drupal\\Core\\DependencyInjection\\DependencySerializationTrait\.$#'
+			identifier: dependencySerializationTraitProperty.unsupportedReadOnlyProperty
+			count: 3
+			path: web/modules/custom/spacex_launches/src/Plugin/Block/SpacexLaunchesBlock.php

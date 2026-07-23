@@ -1,12 +1,17 @@
 <?php
 
+/**
+ * @file
+ * Install and update hooks for the Fintech Landing Page module.
+ */
+
 declare(strict_types=1);
 
 /**
  * @file
  * Install, update and uninstall functions for the FinTech Landing Page module.
  *
- * hook_install() programmatically builds the Layout Builder sections for a
+ * Hook_install() programmatically builds the Layout Builder sections for a
  * UAE FinTech landing page at /fintech-uae, following the identical pattern
  * established in site_page_builder.install for the About Us and Contact Us
  * pages.

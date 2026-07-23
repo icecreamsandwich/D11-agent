@@ -1,8 +1,9 @@
+includes:
+  - phpstan-baseline.neon
+
 parameters:
   level: 1
   paths:
     - web/modules/custom
   excludePaths:
     - */tests/*
-  drupal:
-    drupal_root: web

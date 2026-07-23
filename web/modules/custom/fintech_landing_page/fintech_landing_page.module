@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * Hooks for the Fintech Landing Page module.
+ */
+
 declare(strict_types=1);
 
 /**
@@ -9,7 +14,7 @@ declare(strict_types=1);
  * Registers theme hooks for the three new block plugins:
  *  - FeatureCardBlock   → block__fintech_feature_card_block
  *  - BenefitItemBlock   → block__fintech_benefit_item_block
- *  - TestimonialCardBlock → block__fintech_testimonial_card_block
+ *  - TestimonialCardBlock → block__fintech_testimonial_card_block.
  */
 
 /**

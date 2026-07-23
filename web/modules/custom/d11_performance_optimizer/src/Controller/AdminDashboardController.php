@@ -49,7 +49,8 @@ final class AdminDashboardController extends ControllerBase {
   /**
    * Main overview dashboard page.
    *
-   * @return array<string, mixed>
+   * @return array<string,mixed>
+   *   A render array.
    */
   public function overview(): array {
     $metrics = $this->performanceAnalyzer->getAggregatedMetrics(24);
@@ -115,7 +116,8 @@ final class AdminDashboardController extends ControllerBase {
   /**
    * Detailed performance metrics page.
    *
-   * @return array<string, mixed>
+   * @return array<string,mixed>
+   *   A render array.
    */
   public function performance(): array {
     $recentMetrics = $this->performanceAnalyzer->getRecentMetrics(50);
@@ -188,7 +190,8 @@ final class AdminDashboardController extends ControllerBase {
   /**
    * Slow database queries page.
    *
-   * @return array<string, mixed>
+   * @return array<string,mixed>
+   *   A render array.
    */
   public function database(): array {
     $slowQueries = $this->queryMonitor->getRecentSlowQueries(25);
@@ -235,7 +238,8 @@ final class AdminDashboardController extends ControllerBase {
   /**
    * Asset optimization status page.
    *
-   * @return array<string, mixed>
+   * @return array<string,mixed>
+   *   A render array.
    */
   public function assets(): array {
     $systemPerf = $this->config('system.performance');
@@ -271,7 +275,8 @@ final class AdminDashboardController extends ControllerBase {
   /**
    * SEO and performance logs page.
    *
-   * @return array<string, mixed>
+   * @return array<string,mixed>
+   *   A render array.
    */
   public function seo(): array {
     $logs = $this->performanceLogger->getRecentLogs(50);
@@ -316,7 +321,8 @@ final class AdminDashboardController extends ControllerBase {
   /**
    * Coding standards validation page.
    *
-   * @return array<string, mixed>
+   * @return array<string,mixed>
+   *   A render array.
    */
   public function codingStandards(): array {
     $config = $this->config('d11_performance_optimizer.settings');
@@ -407,7 +413,8 @@ final class AdminDashboardController extends ControllerBase {
   /**
    * Builds dashboard navigation tabs.
    *
-   * @return array<string, mixed>
+   * @return array<string,mixed>
+   *   A render array.
    */
   private function buildNavigation(): array {
     $links = [
@@ -439,9 +446,11 @@ final class AdminDashboardController extends ControllerBase {
   /**
    * Builds metric summary items.
    *
-   * @param array<string, mixed> $metrics
+   * @param array<string,mixed> $metrics
+   *   Aggregated performance metrics.
    *
-   * @return array<string, mixed>
+   * @return array<string,mixed>
+   *   A render array.
    */
   private function buildMetricCards(array $metrics): array {
     if (empty($metrics)) {
@@ -468,9 +477,11 @@ final class AdminDashboardController extends ControllerBase {
   /**
    * Builds cache module status list.
    *
-   * @param array<string, mixed> $report
+   * @param array<string,mixed> $report
+   *   Validation report data.
    *
-   * @return array<string, mixed>
+   * @return array<string,mixed>
+   *   A render array.
    */
   private function buildCacheModuleStatus(array $report): array {
     $items = [];
@@ -496,9 +507,11 @@ final class AdminDashboardController extends ControllerBase {
   /**
    * Builds recommendations table.
    *
-   * @param array<int, array<string, string>> $recs
+   * @param array<int,array<string,string>> $recs
+   *   Recommendation rows from the recommendation engine.
    *
-   * @return array<string, mixed>
+   * @return array<string,mixed>
+   *   A render array.
    */
   private function buildRecommendationsTable(array $recs): array {
     $rows = [];
@@ -527,9 +540,11 @@ final class AdminDashboardController extends ControllerBase {
   /**
    * Builds log summary table.
    *
-   * @param array<string, int> $summary
+   * @param array<string,int> $summary
+   *   Log counts keyed by severity.
    *
-   * @return array<string, mixed>
+   * @return array<string,mixed>
+   *   A render array.
    */
   private function buildLogSummaryTable(array $summary): array {
     $rows = [];

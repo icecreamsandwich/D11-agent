@@ -23,7 +23,7 @@ final class RecommendationEngineService {
   /**
    * Generates a prioritized list of performance recommendations.
    *
-   * @return array<int, array<string, string>>
+   * @return array<int,array<string,string>>
    *   Recommendations sorted by priority (high, medium, low).
    */
   public function generate(): array {

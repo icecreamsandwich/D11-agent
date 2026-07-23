@@ -16,7 +16,7 @@ final class DatabaseQueryMonitorService {
   /**
    * In-memory buffer of queries captured this request.
    *
-   * @var array<int, array<string, mixed>>
+   * @var array<int,array<string,mixed>>
    */
   private array $queryBuffer = [];
 
@@ -130,10 +130,10 @@ final class DatabaseQueryMonitorService {
   /**
    * Detects potential N+1 query patterns in the current buffer.
    *
-   * @return array<int, array<string, mixed>>
+   * @return array<int,array<string,mixed>>
    *   List of detected N+1 patterns.
    */
-  public function detectNPlusOnePatterns(): array {
+  public function detectRepeatedQueryPatterns(): array {
     $patterns = [];
     $normalized = [];
 
@@ -158,12 +158,13 @@ final class DatabaseQueryMonitorService {
   /**
    * Returns summary statistics for the current request.
    *
-   * @return array<string, mixed>
+   * @return array<string,mixed>
+   *   An associative array of results.
    */
   public function getRequestSummary(): array {
-    $totalTime = array_sum(array_column($this->queryBuffer, 'execution_time'));
+    $totalTime = (float) array_sum(array_column($this->queryBuffer, 'execution_time'));
     $slowQueries = array_filter($this->queryBuffer, fn($q) => $q['is_slow']);
-    $nPlusOne = $this->detectNPlusOnePatterns();
+    $nPlusOne = $this->detectRepeatedQueryPatterns();
 
     return [
       'total_queries' => count($this->queryBuffer),
@@ -180,7 +181,8 @@ final class DatabaseQueryMonitorService {
    * @param int $limit
    *   Number of results to return.
    *
-   * @return array<int, object>
+   * @return array<int,object>
+   *   A list of result items.
    */
   public function getRecentSlowQueries(int $limit = 25): array {
     try {

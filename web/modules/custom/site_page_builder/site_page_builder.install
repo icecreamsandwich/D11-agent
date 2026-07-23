@@ -1,17 +1,23 @@
 <?php
 
+/**
+ * @file
+ * Install and update hooks for the Site Page Builder module.
+ */
+
 declare(strict_types=1);
 
 /**
  * @file
  * Install, update and uninstall functions for the Site Page Builder module.
  *
- * hook_install() performs three actions:
+ * Hook_install() performs three actions:
  *  1. Enables Layout Builder with per-node overrides on the "page" content type.
  *  2. Programmatically builds the Layout Builder sections for /about-us.
  *  3. Programmatically builds the Layout Builder sections for /contact-us.
  */
 
+use Drupal\node\NodeInterface;
 use Drupal\Core\Entity\Entity\EntityViewDisplay;
 use Drupal\layout_builder\Entity\LayoutBuilderEntityViewDisplay;
 use Drupal\layout_builder\Section;
@@ -78,7 +84,7 @@ function _site_page_builder_enable_layout_builder_on_page(): void {
  * @return \Drupal\node\NodeInterface|null
  *   The node, or NULL if not found.
  */
-function _site_page_builder_get_node_from_alias(string $alias, string $menu_title = ''): ?\Drupal\node\NodeInterface {
+function _site_page_builder_get_node_from_alias(string $alias, string $menu_title = ''): ?NodeInterface {
   /** @var \Drupal\path_alias\AliasManagerInterface $alias_manager */
   $alias_manager = \Drupal::service('path_alias.manager');
   $system_path = $alias_manager->getPathByAlias($alias);
@@ -209,9 +215,9 @@ function _site_page_builder_setup_about_us_page(): void {
   // -------------------------------------------------------------------
   $counter_data = [
     'first'  => ['icon' => 'fa-solid fa-briefcase', 'number' => '250+', 'counter_label' => 'Projects Completed'],
-    'second' => ['icon' => 'fa-solid fa-users',     'number' => '120+', 'counter_label' => 'Happy Clients'],
+    'second' => ['icon' => 'fa-solid fa-users', 'number' => '120+', 'counter_label' => 'Happy Clients'],
     'third'  => ['icon' => 'fa-solid fa-circle-check', 'number' => '8+', 'counter_label' => 'Years of Experience'],
-    'fourth' => ['icon' => 'fa-solid fa-globe',     'number' => '15',   'counter_label' => 'Countries Served'],
+    'fourth' => ['icon' => 'fa-solid fa-globe', 'number' => '15', 'counter_label' => 'Countries Served'],
   ];
 
   $counter_components = [];

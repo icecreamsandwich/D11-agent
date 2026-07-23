@@ -24,7 +24,7 @@ final class CodingStandardsValidatorService {
   /**
    * Validates all custom modules found under /modules/custom.
    *
-   * @return array<string, mixed>
+   * @return array<string,mixed>
    *   Validation results keyed by module name.
    */
   public function validateCustomModules(): array {
@@ -59,7 +59,7 @@ final class CodingStandardsValidatorService {
    * @param string $directory
    *   Absolute path to the directory.
    *
-   * @return array<string, mixed>
+   * @return array<string,mixed>
    *   Issues found in the directory.
    */
   public function validateDirectory(string $directory): array {
@@ -88,7 +88,7 @@ final class CodingStandardsValidatorService {
    * @param string $filePath
    *   Absolute path to the PHP file.
    *
-   * @return array<int, array<string, string>>
+   * @return array<int,array<string,string>>
    *   List of issues found.
    */
   public function validateFile(string $filePath): array {
@@ -186,7 +186,7 @@ final class CodingStandardsValidatorService {
    * @param string $directory
    *   The directory to scan.
    *
-   * @return array<int, string>
+   * @return array<int,string>
    *   List of absolute file paths.
    */
   private function collectPhpFiles(string $directory): array {

@@ -24,6 +24,8 @@
         "drupal/ai_provider_openai": "^1.2",
         "drupal/backup_migrate": "^5.1",
         "drupal/canvas": "^1.0",
+        "drupal/config_split": "^2.0",
+        "drupal/content_moderation_notifications": "^3.0",
         "drupal/core-composer-scaffold": "^11.1",
         "drupal/core-project-message": "^11.1",
         "drupal/core-recommended": "^11.1",
@@ -32,15 +34,14 @@
         "drupal/entity_browser": "^2.13",
         "drupal/entity_clone": "2.x-dev@dev",
         "drupal/inline_entity_form": "^3.0@RC",
-        "drupal/mahi": "^1.1",
-        "drupal/config_split": "^2.0",
-        "drupal/content_moderation_notifications": "^4.0",
         "drupal/language_switcher_extended": "^1.0",
+        "drupal/mahi": "^1.1",
         "drupal/metatag": "^2.2",
         "drupal/paragraphs": "^1.18",
         "drupal/pathauto": "^1.13",
         "drupal/redirect": "^1.10",
         "drupal/restui": "^1.22",
+        "drupal/seckit": "^2.0",
         "drupal/shield": "^1.8",
         "drupal/simple_sitemap": "^4.2",
         "drupal/stage_file_proxy": "^3.1",
@@ -124,5 +125,9 @@
                 "      composer remove drupal/core-project-message"
             ]
         }
+    },
+    "require-dev": {
+        "drupal/core-dev": "^11.1",
+        "phpunit/phpunit": "^11"
     }
 }

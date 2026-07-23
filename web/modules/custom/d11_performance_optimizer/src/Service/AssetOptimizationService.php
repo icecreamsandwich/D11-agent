@@ -17,7 +17,7 @@ class AssetOptimizationService {
   /**
    * Known render-blocking script patterns.
    *
-   * @var array<int, string>
+   * @var array<int,string>
    */
   protected const BLOCKING_SCRIPT_PATTERNS = [
     'jquery.min.js',
@@ -40,7 +40,7 @@ class AssetOptimizationService {
   /**
    * Alters the page attachments to optimize asset loading.
    *
-   * @param array<string, mixed> $attachments
+   * @param array<string,mixed> $attachments
    *   The page attachments array (passed by reference).
    */
   public function alterAttachments(array &$attachments): void {
@@ -58,7 +58,7 @@ class AssetOptimizationService {
   /**
    * Adds resource preload and prefetch hints to the head.
    *
-   * @param array<string, mixed> $attachments
+   * @param array<string,mixed> $attachments
    *   The page attachments array (passed by reference).
    */
   protected function addPreloadHints(array &$attachments): void {
@@ -95,7 +95,7 @@ class AssetOptimizationService {
   /**
    * Scans attached libraries for potential render-blocking scripts.
    *
-   * @param array<string, mixed> $attachments
+   * @param array<string,mixed> $attachments
    *   The page attachments array (passed by reference).
    */
   protected function detectAndFlagBlockingResources(array &$attachments): void {
@@ -128,7 +128,7 @@ class AssetOptimizationService {
    * In a full implementation this would extract above-the-fold CSS.
    * Here we provide the hook point and add a note in the head.
    *
-   * @param array<string, mixed> $pageFop
+   * @param array<string,mixed> $pageFop
    *   The page_top render array (passed by reference).
    */
   public function injectCriticalCss(array &$pageFop): void {
@@ -144,10 +144,10 @@ class AssetOptimizationService {
   /**
    * Analyzes the asset payload for a set of attachments.
    *
-   * @param array<string, mixed> $attachments
+   * @param array<string,mixed> $attachments
    *   Page attachments.
    *
-   * @return array<string, mixed>
+   * @return array<string,mixed>
    *   Analysis results.
    */
   public function analyzeAssetPayload(array $attachments): array {

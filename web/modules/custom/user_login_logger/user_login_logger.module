@@ -7,6 +7,7 @@
 
 declare(strict_types=1);
 
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\user\UserInterface;
 use Drupal\user_login_logger\Event\UserLoginEvent;
 use Drupal\user_login_logger\Event\UserLoginLoggerEvents;
@@ -17,4 +18,19 @@ use Drupal\user_login_logger\Event\UserLoginLoggerEvents;
 function user_login_logger_user_login(UserInterface $account): void {
   $event = new UserLoginEvent($account);
   \Drupal::service('event_dispatcher')->dispatch($event, UserLoginLoggerEvents::USER_LOGIN);
+}
+
+// Testing copilot.
+
+/**
+ * Implements hook_node_presave().
+ *
+ * This is just an example of another hook implementation in the same module.
+ * You can remove this if you don't need it.
+ */
+function user_login_logger_node_presave(EntityInterface $node) {
+  if ($node->getType() === 'article') {
+    // Do something before saving an article node.
+    \Drupal::logger('user_login_logger')->notice('An article node is being saved: @title', ['@title' => $node->getTitle()]);
+  }
 }

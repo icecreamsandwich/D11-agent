@@ -20,6 +20,11 @@ use Drupal\d11_performance_optimizer\Service\DatabaseQueryMonitorService;
  */
 final class DatabaseQueryMonitorServiceTest extends UnitTestCase {
 
+  /**
+   * The service under test.
+   *
+   * @var \Drupal\d11_performance_optimizer\Service\DatabaseQueryMonitorService
+   */
   private DatabaseQueryMonitorService $service;
 
   /**
@@ -72,12 +77,12 @@ final class DatabaseQueryMonitorServiceTest extends UnitTestCase {
   }
 
   /**
-   * @covers ::detectNPlusOnePatterns
+   * @covers ::detectRepeatedQueryPatterns
    */
-  public function testNPlusOneDetectionBelowThreshold(): void {
+  public function testRepeatedQueryDetectionBelowThreshold(): void {
     // Record 4 identical-looking queries (below the 5-occurrence threshold).
     for ($i = 0; $i < 4; $i++) {
-      // We can't easily call recordQuery without DB, but detectNPlusOnePatterns
+      // We can't easily call recordQuery without DB, but detectRepeatedQueryPatterns
       // operates on the internal buffer. Access via reflection.
       $reflection = new \ReflectionClass($this->service);
       $bufferProp = $reflection->getProperty('queryBuffer');
@@ -87,14 +92,14 @@ final class DatabaseQueryMonitorServiceTest extends UnitTestCase {
       $bufferProp->setValue($this->service, $buffer);
     }
 
-    $patterns = $this->service->detectNPlusOnePatterns();
+    $patterns = $this->service->detectRepeatedQueryPatterns();
     $this->assertEmpty($patterns, 'Should not detect N+1 with only 4 occurrences.');
   }
 
   /**
-   * @covers ::detectNPlusOnePatterns
+   * @covers ::detectRepeatedQueryPatterns
    */
-  public function testNPlusOneDetectionAboveThreshold(): void {
+  public function testRepeatedQueryDetectionAboveThreshold(): void {
     $reflection = new \ReflectionClass($this->service);
     $bufferProp = $reflection->getProperty('queryBuffer');
     $bufferProp->setAccessible(TRUE);
@@ -105,7 +110,7 @@ final class DatabaseQueryMonitorServiceTest extends UnitTestCase {
     }
     $bufferProp->setValue($this->service, $buffer);
 
-    $patterns = $this->service->detectNPlusOnePatterns();
+    $patterns = $this->service->detectRepeatedQueryPatterns();
     $this->assertNotEmpty($patterns, 'Should detect N+1 with 6 occurrences of same pattern.');
     $this->assertGreaterThanOrEqual(6, $patterns[0]['count']);
   }

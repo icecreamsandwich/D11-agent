@@ -37,7 +37,7 @@ final class PerformanceLoggerService {
    *   The request path.
    * @param string $severity
    *   One of 'info', 'warning', 'error'.
-   * @param array<string, mixed> $context
+   * @param array<string,mixed> $context
    *   Additional context data (will be serialized).
    */
   public function log(
@@ -132,7 +132,8 @@ final class PerformanceLoggerService {
    * @param string|null $type
    *   Optional log type filter.
    *
-   * @return array<int, object>
+   * @return array<int,object>
+   *   A list of result items.
    */
   public function getRecentLogs(int $limit = 50, ?string $type = NULL): array {
     try {
@@ -155,7 +156,8 @@ final class PerformanceLoggerService {
   /**
    * Returns log counts grouped by type.
    *
-   * @return array<string, int>
+   * @return array<string,int>
+   *   An associative array of results.
    */
   public function getLogSummary(): array {
     try {

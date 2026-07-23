@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * Hooks for the D11 Performance Optimizer module.
+ */
+
 declare(strict_types=1);
 
 /**
@@ -7,6 +12,8 @@ declare(strict_types=1);
  * D11 Performance Optimizer module hooks.
  */
 
+use Drupal\Core\Config\ImmutableConfig;
+use Drupal\Core\Url;
 use Drupal\Core\Routing\RouteMatchInterface;
 
 /**
@@ -14,7 +21,7 @@ use Drupal\Core\Routing\RouteMatchInterface;
  */
 function d11_performance_optimizer_help(string $route_name, RouteMatchInterface $route_match): string {
   return match ($route_name) {
-    'help.page.d11_performance_optimizer' => '<p>' . t('Automatically improves Drupal 11 site performance, rendering efficiency, asset optimization, SEO readiness, and enforces coding standards. Visit the <a href=":url">Performance Optimizer Dashboard</a> for metrics and recommendations.', [':url' => \Drupal\Core\Url::fromRoute('d11_performance_optimizer.dashboard')->toString()]) . '</p>',
+    'help.page.d11_performance_optimizer' => '<p>' . t('Automatically improves Drupal 11 site performance, rendering efficiency, asset optimization, SEO readiness, and enforces coding standards. Visit the <a href=":url">Performance Optimizer Dashboard</a> for metrics and recommendations.', [':url' => Url::fromRoute('d11_performance_optimizer.dashboard')->toString()]) . '</p>',
     default => '',
   };
 }
@@ -44,7 +51,7 @@ function d11_performance_optimizer_page_attachments_alter(array &$attachments): 
  * @param \Drupal\Core\Config\ImmutableConfig $config
  *   The module configuration.
  */
-function _d11_performance_optimizer_optimize_assets(array &$attachments, \Drupal\Core\Config\ImmutableConfig $config): void {
+function _d11_performance_optimizer_optimize_assets(array &$attachments, ImmutableConfig $config): void {
   if (empty($attachments['#attached']['html_head'])) {
     return;
   }
@@ -133,7 +140,7 @@ function d11_performance_optimizer_toolbar(): array {
     'tab' => [
       '#type' => 'link',
       '#title' => t('Perf'),
-      '#url' => \Drupal\Core\Url::fromRoute('d11_performance_optimizer.dashboard'),
+      '#url' => Url::fromRoute('d11_performance_optimizer.dashboard'),
       '#attributes' => [
         'title' => t('Performance Optimizer Dashboard'),
         'class' => ['toolbar-icon', 'toolbar-icon-performance'],

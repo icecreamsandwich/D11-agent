@@ -24,7 +24,8 @@ final class CacheAnalyzerService {
   /**
    * Returns a full cache health report.
    *
-   * @return array<string, mixed>
+   * @return array<string,mixed>
+   *   An associative array of results.
    */
   public function analyze(): array {
     $issues = [];
@@ -100,10 +101,10 @@ final class CacheAnalyzerService {
   /**
    * Analyzes a render array for missing cache metadata.
    *
-   * @param array<string, mixed> $renderArray
+   * @param array<string,mixed> $renderArray
    *   The render array to inspect.
    *
-   * @return array<int, string>
+   * @return array<int,string>
    *   List of issues found.
    */
   public function analyzeRenderArray(array $renderArray): array {

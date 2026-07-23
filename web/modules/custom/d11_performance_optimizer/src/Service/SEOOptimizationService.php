@@ -7,7 +7,6 @@ namespace Drupal\d11_performance_optimizer\Service;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
-use Drupal\Core\Path\PathMatcherInterface;
 use Drupal\path_alias\AliasManagerInterface;
 
 /**
@@ -25,7 +24,7 @@ final class SEOOptimizationService {
   /**
    * Processes page attachments to inject and validate SEO metadata.
    *
-   * @param array<string, mixed> $attachments
+   * @param array<string,mixed> $attachments
    *   The page attachments array, passed by reference.
    */
   public function processAttachments(array &$attachments): void {
@@ -133,10 +132,11 @@ final class SEOOptimizationService {
   /**
    * Builds an index of existing meta tag names/properties in <head>.
    *
-   * @param array<int, mixed> $head
+   * @param array<int,mixed> $head
    *   The html_head attachments array.
    *
-   * @return array<string, bool>
+   * @return array<string,bool>
+   *   An associative array of results.
    */
   private function indexExistingMeta(array $head): array {
     $index = [];
@@ -161,7 +161,7 @@ final class SEOOptimizationService {
    * @param string $html
    *   The HTML response body.
    *
-   * @return array<int, array<string, string>>
+   * @return array<int,array<string,string>>
    *   List of detected SEO issues.
    */
   public function analyzeHtml(string $html): array {
@@ -188,7 +188,8 @@ final class SEOOptimizationService {
     foreach ($imgMatches[0] as $img) {
       if (!preg_match('/\balt\s*=/i', $img)) {
         $issues[] = ['severity' => 'warning', 'issue' => 'Image missing alt attribute: ' . substr($img, 0, 100)];
-        break; // Report first occurrence; avoid flooding.
+        // Report first occurrence; avoid flooding.
+        break;
       }
     }
 

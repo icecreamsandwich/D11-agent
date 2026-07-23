@@ -21,6 +21,11 @@ use Drupal\d11_performance_optimizer\Service\PerformanceAnalyzerService;
  */
 final class PerformanceAnalyzerServiceTest extends UnitTestCase {
 
+  /**
+   * The service under test.
+   *
+   * @var \Drupal\d11_performance_optimizer\Service\PerformanceAnalyzerService
+   */
   private PerformanceAnalyzerService $service;
 
   /**
@@ -59,7 +64,8 @@ final class PerformanceAnalyzerServiceTest extends UnitTestCase {
    */
   public function testTimerStartStop(): void {
     $this->service->startTimer('test');
-    usleep(10000); // 10ms
+    // 10ms
+    usleep(10000);
     $elapsed = $this->service->stopTimer('test');
 
     $this->assertGreaterThan(5.0, $elapsed, 'Elapsed time should be > 5ms.');

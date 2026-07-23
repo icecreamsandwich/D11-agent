@@ -2,6 +2,7 @@
 
 namespace Drupal\d11_multilingual\EventSubscriber;
 
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\Core\Path\CurrentPathStack;
 use Drupal\Core\Session\AccountInterface;
@@ -45,7 +46,7 @@ class LanguageRedirectSubscriber implements EventSubscriberInterface {
     }
 
     $default_lang = $this->languageManager->getDefaultLanguage()->getId();
-    $response = new \Symfony\Component\HttpFoundation\RedirectResponse(
+    $response = new RedirectResponse(
       $request->getBaseUrl() . '/' . $default_lang,
       301
     );

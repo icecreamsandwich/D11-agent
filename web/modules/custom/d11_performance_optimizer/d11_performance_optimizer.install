@@ -1,11 +1,13 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * @file
- * Install, update and uninstall functions for the D11 Performance Optimizer module.
+ * Install, update and uninstall functions for D11 Performance Optimizer.
  */
+
+declare(strict_types=1);
+
+use Drupal\node\Entity\Node;
 
 /**
  * Implements hook_schema().
@@ -241,7 +243,7 @@ function d11_performance_optimizer_update_10003(array &$sandbox): string {
   $batch = array_splice($sandbox['nids'], 0, $batch_size);
 
   foreach ($batch as $nid) {
-    $node = \Drupal\node\Entity\Node::load($nid);
+    $node = Node::load($nid);
     if (!$node) {
       $sandbox['processed']++;
       continue;
