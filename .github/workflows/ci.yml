@@ -72,6 +72,13 @@ jobs:
           key: composer-${{ hashFiles('composer.lock') }}
           restore-keys: composer-
 
+      - name: Remove checked-in build artifacts
+        # vendor/ and contrib modules are committed to this repo (without
+        # their .git dirs), which breaks composer's update of dev packages.
+        # CI builds from composer.lock alone, proving the lock file is the
+        # single source of truth for a reproducible build.
+        run: rm -rf vendor web/core web/modules/contrib web/themes/contrib web/profiles/contrib web/libraries
+
       - name: Install dependencies
         run: composer install --no-interaction --no-progress --prefer-dist
 
@@ -104,6 +111,13 @@ jobs:
           path: ~/.cache/composer
           key: composer-${{ hashFiles('composer.lock') }}
           restore-keys: composer-
+
+      - name: Remove checked-in build artifacts
+        # vendor/ and contrib modules are committed to this repo (without
+        # their .git dirs), which breaks composer's update of dev packages.
+        # CI builds from composer.lock alone, proving the lock file is the
+        # single source of truth for a reproducible build.
+        run: rm -rf vendor web/core web/modules/contrib web/themes/contrib web/profiles/contrib web/libraries
 
       - name: Install dependencies
         run: composer install --no-interaction --no-progress --prefer-dist
@@ -138,6 +152,13 @@ jobs:
           path: ~/.cache/composer
           key: composer-${{ hashFiles('composer.lock') }}
           restore-keys: composer-
+
+      - name: Remove checked-in build artifacts
+        # vendor/ and contrib modules are committed to this repo (without
+        # their .git dirs), which breaks composer's update of dev packages.
+        # CI builds from composer.lock alone, proving the lock file is the
+        # single source of truth for a reproducible build.
+        run: rm -rf vendor web/core web/modules/contrib web/themes/contrib web/profiles/contrib web/libraries
 
       - name: Install dependencies
         run: composer install --no-interaction --no-progress --prefer-dist
@@ -189,6 +210,7 @@ jobs:
 
       - name: Build production artifact (demonstration)
         run: |
+          rm -rf vendor web/core web/modules/contrib web/themes/contrib web/profiles/contrib web/libraries
           composer install --no-dev --no-interaction --no-progress --prefer-dist
           tar -czf /tmp/site-build.tar.gz \
             --exclude='.git' \
