@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JSON:API POC — Consumer App</title>
+<style>
+  :root { --blue:#0678be; --bg:#f4f6f8; --card:#fff; --border:#dde3ea; --text:#1f2733; --muted:#67717e; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; background:var(--bg); color:var(--text); }
+  header { background:var(--blue); color:#fff; padding:16px 24px; display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+  header h1 { font-size:18px; margin:0; }
+  header .sub { font-size:13px; opacity:.85; }
+  .wrap { max-width:960px; margin:0 auto; padding:20px; }
+  .authbar { display:flex; gap:8px; align-items:center; background:var(--card); border:1px solid var(--border); border-radius:8px; padding:10px 14px; margin-bottom:16px; flex-wrap:wrap; font-size:13px; }
+  .authbar input { padding:6px 8px; border:1px solid var(--border); border-radius:6px; }
+  .tabs { display:flex; gap:6px; margin-bottom:16px; }
+  .tabs button { padding:8px 18px; border:1px solid var(--border); background:var(--card); border-radius:8px; cursor:pointer; font-size:14px; }
+  .tabs button.active { background:var(--blue); color:#fff; border-color:var(--blue); }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:16px; margin-bottom:12px; }
+  .card h3 { margin:0 0 6px; font-size:16px; }
+  .meta { font-size:12px; color:var(--muted); margin-bottom:8px; }
+  .body { font-size:14px; }
+  .row { display:flex; gap:8px; margin-top:10px; }
+  .btn { padding:6px 14px; border-radius:6px; border:1px solid var(--border); background:#fff; cursor:pointer; font-size:13px; }
+  .btn.primary { background:var(--blue); color:#fff; border-color:var(--blue); }
+  .btn.danger { color:#b02a37; border-color:#e3b3b8; }
+  form label { display:block; font-size:13px; margin:10px 0 4px; font-weight:600; }
+  form input[type=text], form textarea { width:100%; padding:8px; border:1px solid var(--border); border-radius:6px; font:inherit; }
+  #status { position:fixed; bottom:16px; right:16px; padding:10px 16px; border-radius:8px; font-size:13px; color:#fff; display:none; max-width:420px; }
+  #status.ok { background:#2e7d32; display:block; } #status.err { background:#b02a37; display:block; }
+  .pager { display:flex; gap:8px; justify-content:center; margin:12px 0; }
+  code { background:#eef1f4; padding:1px 5px; border-radius:4px; font-size:12px; }
+  table { width:100%; border-collapse:collapse; background:var(--card); border:1px solid var(--border); border-radius:8px; overflow:hidden; }
+  th, td { text-align:left; padding:10px 14px; border-bottom:1px solid var(--border); font-size:14px; }
+  th { background:#f0f3f6; font-size:12px; text-transform:uppercase; color:var(--muted); }
+  .endpoint { font-size:12px; color:var(--muted); margin-bottom:10px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>JSON:API POC</h1>
+  <span class="sub">Drupal 11 · articles &amp; users consumed via <code style="background:rgba(255,255,255,.2)">/jsonapi</code></span>
+</header>
+
+<div class="wrap">
+  <div class="authbar">
+    <strong>Write auth (Basic):</strong>
+    <input id="user" placeholder="username" value="apiuser">
+    <input id="pass" type="password" placeholder="password" value="api123">
+    <span style="color:var(--muted)">Reads are anonymous; POST/PATCH/DELETE use these credentials.</span>
+  </div>
+
+  <div class="tabs">
+    <button data-tab="articles" class="active">Articles</button>
+    <button data-tab="users">Users</button>
+    <button data-tab="create">+ New Article</button>
+  </div>
+
+  <div id="tab-articles">
+    <div class="endpoint" id="articles-endpoint"></div>
+    <div id="articles"></div>
+    <div class="pager">
+      <button class="btn" id="prev" disabled>&larr; Prev</button>
+      <button class="btn" id="next" disabled>Next &rarr;</button>
+    </div>
+  </div>
+
+  <div id="tab-users" style="display:none">
+    <div class="endpoint">GET <code>/jsonapi/user/user</code></div>
+    <table><thead><tr><th>Name</th><th>Mail (if visible)</th><th>Created</th><th>Status</th></tr></thead><tbody id="users"></tbody></table>
+  </div>
+
+  <div id="tab-create" style="display:none">
+    <div class="card">
+      <div class="endpoint" id="form-endpoint">POST <code>/jsonapi/node/article</code></div>
+      <form id="article-form">
+        <input type="hidden" id="edit-uuid">
+        <label>Title</label>
+        <input type="text" id="f-title" required>
+        <label>Body</label>
+        <textarea id="f-body" rows="5"></textarea>
+        <div class="row">
+          <button class="btn primary" type="submit" id="submit-btn">Create article</button>
+          <button class="btn" type="button" id="cancel-edit" style="display:none">Cancel edit</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div id="status"></div>
+
+<script>
+const API = '/jsonapi';               // same origin as Drupal; change to full URL if hosted elsewhere
+const PAGE_SIZE = 5;
+let pageLinks = { prev: null, next: null };
+let currentUrl = `${API}/node/article?include=uid&sort=-created&page[limit]=${PAGE_SIZE}`;
+
+const $ = s => document.querySelector(s);
+const esc = s => (s ?? '').toString().replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function toast(msg, ok = true) {
+  const el = $('#status');
+  el.textContent = msg;
+  el.className = ok ? 'ok' : 'err';
+  setTimeout(() => el.className = '', 4000);
+}
+
+function authHeader() {
+  return 'Basic ' + btoa($('#user').value + ':' + $('#pass').value);
+}
+
+// CSRF token is required when Drupal authenticates the request via session
+// cookie (e.g. you're logged into the site in this browser). Harmless otherwise.
+let csrfToken = null;
+async function getCsrfToken() {
+  if (!csrfToken) {
+    csrfToken = await (await fetch('/session/token')).text();
+  }
+  return csrfToken;
+}
+
+async function jsonapi(url, options = {}) {
+  const headers = { 'Accept': 'application/vnd.api+json', ...(options.headers || {}) };
+  if (options.method && options.method !== 'GET') {
+    headers['Content-Type'] = 'application/vnd.api+json';
+    headers['Authorization'] = authHeader();
+    headers['X-CSRF-Token'] = await getCsrfToken();
+  }
+  let res = await fetch(url, { ...options, headers });
+  // Stale CSRF token (e.g. logged in/out mid-session): refresh once and retry.
+  if (res.status === 403 && options.method && options.method !== 'GET' && !options._retried) {
+    csrfToken = null;
+    headers['X-CSRF-Token'] = await getCsrfToken();
+    res = await fetch(url, { ...options, headers, _retried: true });
+  }
+  if (res.status === 204) return null;
+  const doc = await res.json();
+  if (!res.ok) {
+    const e = doc.errors?.[0];
+    throw new Error(e ? `${e.status} ${e.title}: ${e.detail || ''}` : `HTTP ${res.status}`);
+  }
+  return doc;
+}
+
+// ---------- Articles ----------
+async function loadArticles(url = currentUrl) {
+  currentUrl = url;
+  $('#articles-endpoint').innerHTML = `GET <code>${esc(url)}</code>`;
+  try {
+    const doc = await jsonapi(url);
+    const authors = Object.fromEntries((doc.included || []).map(u => [u.id, u.attributes.display_name || u.attributes.name]));
+    $('#articles').innerHTML = doc.data.length ? doc.data.map(n => `
+      <div class="card">
+        <h3>${esc(n.attributes.title)}</h3>
+        <div class="meta">
+          by <strong>${esc(authors[n.relationships.uid?.data?.id] || 'Anonymous')}</strong>
+          · ${new Date(n.attributes.created).toLocaleString()}
+          · uuid <code>${n.id}</code>
+        </div>
+        <div class="body">${n.attributes.body?.processed || '<em>No body</em>'}</div>
+        <div class="row">
+          <button class="btn" onclick='startEdit(${JSON.stringify(n.id)})'>Edit</button>
+          <button class="btn danger" onclick='deleteArticle(${JSON.stringify(n.id)})'>Delete</button>
+        </div>
+      </div>`).join('') : '<div class="card">No articles found.</div>';
+    pageLinks.prev = doc.links?.prev?.href || null;
+    pageLinks.next = doc.links?.next?.href || null;
+    $('#prev').disabled = !pageLinks.prev;
+    $('#next').disabled = !pageLinks.next;
+  } catch (e) { toast('Failed to load articles — ' + e.message, false); }
+}
+$('#prev').onclick = () => loadArticles(pageLinks.prev);
+$('#next').onclick = () => loadArticles(pageLinks.next);
+
+// ---------- Users ----------
+async function loadUsers() {
+  try {
+    const doc = await jsonapi(`${API}/user/user?sort=-created`);
+    $('#users').innerHTML = doc.data.map(u => `
+      <tr>
+        <td>${esc(u.attributes.display_name || u.attributes.name || 'Anonymous')}</td>
+        <td>${esc(u.attributes.mail || '—')}</td>
+        <td>${u.attributes.created ? new Date(u.attributes.created).toLocaleDateString() : '—'}</td>
+        <td>${u.attributes.status ? 'Active' : 'Blocked'}</td>
+      </tr>`).join('');
+  } catch (e) { toast('Failed to load users — ' + e.message, false); }
+}
+
+// ---------- Create / Edit / Delete ----------
+$('#article-form').onsubmit = async ev => {
+  ev.preventDefault();
+  const uuid = $('#edit-uuid').value;
+  const payload = {
+    data: {
+      type: 'node--article',
+      ...(uuid && { id: uuid }),
+      attributes: {
+        title: $('#f-title').value,
+        body: { value: $('#f-body').value, format: 'basic_html' },
+      },
+    },
+  };
+  try {
+    await jsonapi(uuid ? `${API}/node/article/${uuid}` : `${API}/node/article`, {
+      method: uuid ? 'PATCH' : 'POST',
+      body: JSON.stringify(payload),
+    });
+    toast(uuid ? 'Article updated' : 'Article created');
+    resetForm();
+    switchTab('articles');
+    loadArticles(`${API}/node/article?include=uid&sort=-created&page[limit]=${PAGE_SIZE}`);
+  } catch (e) { toast(e.message, false); }
+};
+
+async function startEdit(uuid) {
+  try {
+    const doc = await jsonapi(`${API}/node/article/${uuid}`);
+    $('#edit-uuid').value = uuid;
+    $('#f-title').value = doc.data.attributes.title;
+    $('#f-body').value = doc.data.attributes.body?.value || '';
+    $('#submit-btn').textContent = 'Save changes';
+    $('#cancel-edit').style.display = '';
+    $('#form-endpoint').innerHTML = `PATCH <code>/jsonapi/node/article/${uuid}</code>`;
+    switchTab('create');
+  } catch (e) { toast(e.message, false); }
+}
+
+async function deleteArticle(uuid) {
+  if (!confirm('Delete this article?')) return;
+  try {
+    await jsonapi(`${API}/node/article/${uuid}`, { method: 'DELETE' });
+    toast('Article deleted');
+    loadArticles();
+  } catch (e) { toast(e.message, false); }
+}
+
+function resetForm() {
+  $('#article-form').reset();
+  $('#edit-uuid').value = '';
+  $('#submit-btn').textContent = 'Create article';
+  $('#cancel-edit').style.display = 'none';
+  $('#form-endpoint').innerHTML = 'POST <code>/jsonapi/node/article</code>';
+}
+$('#cancel-edit').onclick = resetForm;
+
+// ---------- Tabs ----------
+function switchTab(name) {
+  document.querySelectorAll('.tabs button').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
+  ['articles','users','create'].forEach(t => $('#tab-' + t).style.display = t === name ? '' : 'none');
+  if (name === 'users') loadUsers();
+  if (name === 'articles') loadArticles();
+}
+document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => switchTab(b.dataset.tab));
+
+loadArticles();
+</script>
+</body>
+</html>
