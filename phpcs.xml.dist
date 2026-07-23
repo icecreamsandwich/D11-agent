@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ruleset name="d11-custom">
+  <description>Drupal coding standards for custom code.</description>
+
+  <!-- Scan only our own code, never core/contrib. -->
+  <file>web/modules/custom</file>
+
+  <arg name="extensions" value="php,module,install,inc,theme"/>
+  <arg name="colors"/>
+  <arg value="p"/>
+
+  <rule ref="Drupal"/>
+  <rule ref="DrupalPractice"/>
+
+  <exclude-pattern>*/node_modules/*</exclude-pattern>
+  <exclude-pattern>*/vendor/*</exclude-pattern>
+</ruleset>
