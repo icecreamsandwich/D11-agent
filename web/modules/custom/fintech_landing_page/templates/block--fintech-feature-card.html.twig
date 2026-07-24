@@ -1,0 +1,27 @@
+{#
+/**
+ * @file
+ * Template for the FinTech Feature Card block.
+ *
+ * Variables:
+ * - icon: Font Awesome CSS class string (e.g. "fa-solid fa-bolt").
+ * - title_text: Feature name heading.
+ * - description: Short feature description.
+ * - attributes: HTML attributes for the block wrapper.
+ */
+#}
+{{ attach_library('fintech_landing_page/fintech_page') }}
+{{ attach_library('mahi/fontawesome6') }}
+<div{{ attributes.addClass('ftb-feature') }}>
+  {% if icon %}
+    <div class="ftb-feature__icon" aria-hidden="true">
+      <i class="{{ icon }}"></i>
+    </div>
+  {% endif %}
+  {% if title_text %}
+    <h3 class="ftb-feature__title">{{ title_text }}</h3>
+  {% endif %}
+  {% if description %}
+    <p class="ftb-feature__description">{{ description }}</p>
+  {% endif %}
+</div>

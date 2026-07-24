@@ -1,0 +1,87 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for Views Hooks Experiment.
+ */
+
+declare(strict_types=1);
+
+/**
+ * Implements hook_schema().
+ *
+ * Defines the custom table that hook_views_data() exposes to Views. The
+ * table is created automatically when the module is installed and dropped
+ * on uninstall.
+ */
+function views_hooks_experiment_schema(): array {
+  $schema['views_hooks_experiment_log'] = [
+    'description' => 'Sample log entries exposed to Views via hook_views_data().',
+    'fields' => [
+      'id' => [
+        'description' => 'Primary key.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ],
+      'message' => [
+        'description' => 'The log message.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ],
+      'severity' => [
+        'description' => 'Severity keyword (notice, warning, error, hidden).',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => 'notice',
+      ],
+      'created' => [
+        'description' => 'Unix timestamp when the entry was created.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ],
+    ],
+    'primary key' => ['id'],
+    'indexes' => [
+      'severity' => ['severity'],
+      'created' => ['created'],
+    ],
+  ];
+  return $schema;
+}
+
+/**
+ * Implements hook_install().
+ *
+ * Seeds the custom table with sample rows so the auto-created view has data
+ * immediately. One row is given severity "hidden": it must NEVER appear in
+ * the view because hook_views_query_alter() filters it out — visiting the
+ * view and not seeing it proves the query alter works.
+ */
+function views_hooks_experiment_install(): void {
+  $connection = \Drupal::database();
+  $now = \Drupal::time()->getRequestTime();
+
+  $rows = [
+    ['message' => 'First sample log entry', 'severity' => 'notice', 'created' => $now - 500],
+    ['message' => 'Second sample log entry', 'severity' => 'notice', 'created' => $now - 400],
+    ['message' => 'A warning-level entry', 'severity' => 'warning', 'created' => $now - 300],
+    ['message' => 'An error-level entry', 'severity' => 'error', 'created' => $now - 200],
+    ['message' => 'Another notice entry', 'severity' => 'notice', 'created' => $now - 100],
+    ['message' => 'Sixth entry to trigger the pager', 'severity' => 'warning', 'created' => $now - 50],
+    ['message' => 'SECRET row removed by hook_views_query_alter()', 'severity' => 'hidden', 'created' => $now],
+  ];
+
+  $insert = $connection->insert('views_hooks_experiment_log')
+    ->fields(['message', 'severity', 'created']);
+  foreach ($rows as $row) {
+    $insert->values($row);
+  }
+  $insert->execute();
+
+  \Drupal::messenger()->addStatus(t('Views Hooks Experiment installed: visit /views-hooks-experiment to watch every Views hook fire.'));
+}

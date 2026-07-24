@@ -1,0 +1,5 @@
+name: Queue Demo
+type: module
+description: 'POC — asynchronous background processing with the Queue API: contact form → queue → cron → email + mock CRM.'
+package: Custom
+core_version_requirement: ^11

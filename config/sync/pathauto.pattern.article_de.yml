@@ -1,0 +1,22 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+    - pathauto
+id: article_de
+label: 'Article (German)'
+type: 'canonical_entities:node'
+pattern: '/de/[node:title]'
+selection_criteria:
+  entity_bundle:
+    id: entity_bundle
+    negate: false
+    bundles:
+      article: article
+  entity_langcode:
+    id: entity_langcode
+    negate: false
+    langcodes:
+      de: de
+weight: -5

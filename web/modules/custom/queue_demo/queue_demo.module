@@ -1,0 +1,32 @@
+<?php
+
+/**
+ * @file
+ * Queue Demo module.
+ *
+ * Only hook implementations live here — Drupal requires hook_mail() to be
+ * procedural (or a #[Hook] class); all business logic is in injected services.
+ */
+
+declare(strict_types=1);
+
+use Drupal\Core\StringTranslation\TranslatableMarkup;
+
+/**
+ * Implements hook_mail().
+ *
+ * Builds the message for the 'contact_request' mail key triggered by
+ * EmailService via the Mail Manager. Keys keep one module able to send
+ * many different mail types.
+ */
+function queue_demo_mail(string $key, array &$message, array $params): void {
+  if ($key === 'contact_request') {
+    $message['subject'] = new TranslatableMarkup('Contact Request Received');
+    $message['body'][] = new TranslatableMarkup('Hi @name,', ['@name' => $params['name']]);
+    $message['body'][] = new TranslatableMarkup('We received your message and will get back to you shortly.');
+    $message['body'][] = new TranslatableMarkup('--- Your submission ---');
+    $message['body'][] = new TranslatableMarkup('Name: @name', ['@name' => $params['name']]);
+    $message['body'][] = new TranslatableMarkup('Email: @email', ['@email' => $params['email']]);
+    $message['body'][] = new TranslatableMarkup('Message: @message', ['@message' => $params['message']]);
+  }
+}

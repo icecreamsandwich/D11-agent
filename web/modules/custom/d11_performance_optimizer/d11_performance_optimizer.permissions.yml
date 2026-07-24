@@ -1,0 +1,9 @@
+view performance optimizer dashboard:
+  title: 'View Performance Optimizer Dashboard'
+  description: 'Access the performance optimizer admin dashboard and reports.'
+  restrict access: true
+
+administer performance optimizer:
+  title: 'Administer Performance Optimizer'
+  description: 'Configure performance optimizer settings and clear metrics.'
+  restrict access: true

@@ -1,0 +1,10 @@
+name: 'D11 Performance Optimizer'
+type: module
+description: 'Automatically improves Drupal 11 site performance, rendering efficiency, asset optimization, SEO readiness, and enforces Drupal coding standards.'
+package: Performance
+core_version_requirement: ^11
+dependencies:
+  - drupal:system
+  - drupal:dynamic_page_cache
+  - drupal:page_cache
+configure: d11_performance_optimizer.settings

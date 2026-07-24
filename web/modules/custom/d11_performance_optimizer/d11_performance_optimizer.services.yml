@@ -1,0 +1,74 @@
+services:
+  d11_performance_optimizer.performance_analyzer:
+    class: Drupal\d11_performance_optimizer\Service\PerformanceAnalyzerService
+    arguments:
+      - '@database'
+      - '@logger.factory'
+      - '@config.factory'
+      - '@state'
+
+  d11_performance_optimizer.database_query_monitor:
+    class: Drupal\d11_performance_optimizer\Service\DatabaseQueryMonitorService
+    arguments:
+      - '@database'
+      - '@logger.factory'
+      - '@config.factory'
+
+  d11_performance_optimizer.cache_analyzer:
+    class: Drupal\d11_performance_optimizer\Service\CacheAnalyzerService
+    arguments:
+      - '@cache.default'
+      - '@config.factory'
+      - '@logger.factory'
+      - '@module_handler'
+
+  d11_performance_optimizer.seo_optimization:
+    class: Drupal\d11_performance_optimizer\Service\SEOOptimizationService
+    arguments:
+      - '@config.factory'
+      - '@logger.factory'
+      - '@path_alias.manager'
+      - '@language_manager'
+
+  d11_performance_optimizer.coding_standards_validator:
+    class: Drupal\d11_performance_optimizer\Service\CodingStandardsValidatorService
+    arguments:
+      - '@logger.factory'
+      - '@config.factory'
+      - '@module_handler'
+      - '@extension.list.module'
+
+  d11_performance_optimizer.recommendation_engine:
+    class: Drupal\d11_performance_optimizer\Service\RecommendationEngineService
+    arguments:
+      - '@d11_performance_optimizer.performance_analyzer'
+      - '@d11_performance_optimizer.cache_analyzer'
+      - '@d11_performance_optimizer.database_query_monitor'
+      - '@config.factory'
+      - '@logger.factory'
+
+  d11_performance_optimizer.performance_logger:
+    class: Drupal\d11_performance_optimizer\Service\PerformanceLoggerService
+    arguments:
+      - '@database'
+      - '@logger.factory'
+      - '@config.factory'
+
+  d11_performance_optimizer.render_optimization_subscriber:
+    class: Drupal\d11_performance_optimizer\EventSubscriber\RenderOptimizationSubscriber
+    arguments:
+      - '@d11_performance_optimizer.performance_logger'
+      - '@config.factory'
+      - '@logger.factory'
+    tags:
+      - { name: event_subscriber }
+
+  d11_performance_optimizer.request_performance_subscriber:
+    class: Drupal\d11_performance_optimizer\EventSubscriber\RequestPerformanceSubscriber
+    arguments:
+      - '@d11_performance_optimizer.performance_analyzer'
+      - '@d11_performance_optimizer.performance_logger'
+      - '@d11_performance_optimizer.seo_optimization'
+      - '@config.factory'
+    tags:
+      - { name: event_subscriber }

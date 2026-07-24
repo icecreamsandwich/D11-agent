@@ -1,0 +1,8 @@
+name: 'SpaceX Launches'
+type: module
+description: 'Fetches and displays launch data from The Space Devs Launch Library API.'
+package: Custom
+core_version_requirement: ^11
+dependencies:
+  - drupal:system
+configure: spacex_launches.settings

@@ -1,0 +1,253 @@
+/**
+ * @file
+ * FinTech Landing Page block styles.
+ *
+ * All classes use the ftb- prefix (FinTech Block) to mirror the spb- prefix
+ * convention from site_page_builder. CSS custom properties are inherited from
+ * that module where available; FinTech-specific tokens are defined here.
+ */
+
+/* ============================================================
+   CSS Custom Properties
+   ============================================================ */
+:root {
+  --ftb-primary:       #2563EB;
+  --ftb-primary-dark:  #1d4ed8;
+  --ftb-primary-light: #eff6ff;
+  --ftb-accent:        #10b981;   /* green for highlights / benefits */
+  --ftb-gold:          #f59e0b;   /* star rating colour */
+  --ftb-white:         #ffffff;
+  --ftb-light-bg:      #f8fafc;
+  --ftb-text-dark:     #1e293b;
+  --ftb-text-muted:    #64748b;
+  --ftb-border:        #e2e8f0;
+  --ftb-shadow:        0 2px 16px rgba(0, 0, 0, 0.08);
+  --ftb-radius:        10px;
+  --ftb-transition:    0.25s ease;
+}
+
+/* ============================================================
+   Feature Card  (.ftb-feature)
+   Used in the Features section — 4-column grid row.
+   ============================================================ */
+.ftb-feature {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 2rem 1.5rem;
+  background: var(--ftb-white);
+  border: 1px solid var(--ftb-border);
+  border-radius: var(--ftb-radius);
+  box-shadow: var(--ftb-shadow);
+  transition: transform var(--ftb-transition), box-shadow var(--ftb-transition);
+}
+
+.ftb-feature:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 28px rgba(37, 99, 235, 0.12);
+}
+
+.ftb-feature__icon {
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ftb-primary-light);
+  border-radius: 50%;
+  margin-bottom: 1.25rem;
+  color: var(--ftb-primary);
+  font-size: 1.6rem;
+}
+
+.ftb-feature__title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--ftb-text-dark);
+  margin: 0 0 0.75rem;
+}
+
+.ftb-feature__description {
+  font-size: 0.95rem;
+  color: var(--ftb-text-muted);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ============================================================
+   Benefit Item  (.ftb-benefit)
+   Used in the Benefits section — 3-column row.
+   ============================================================ */
+.ftb-benefit {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.25rem;
+  padding: 1.75rem;
+  background: var(--ftb-white);
+  border-radius: var(--ftb-radius);
+  border-left: 4px solid var(--ftb-accent);
+  box-shadow: var(--ftb-shadow);
+}
+
+.ftb-benefit__icon-wrap {
+  flex-shrink: 0;
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #d1fae5;   /* light green */
+  border-radius: 50%;
+  color: var(--ftb-accent);
+  font-size: 1.4rem;
+}
+
+.ftb-benefit__body {
+  flex: 1;
+}
+
+.ftb-benefit__title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--ftb-text-dark);
+  margin: 0 0 0.5rem;
+}
+
+.ftb-benefit__description {
+  font-size: 0.9rem;
+  color: var(--ftb-text-muted);
+  line-height: 1.6;
+  margin: 0 0 0.75rem;
+}
+
+.ftb-benefit__highlight {
+  display: inline-block;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--ftb-accent);
+  background: #d1fae5;
+  padding: 0.25rem 0.75rem;
+  border-radius: 100px;
+  letter-spacing: 0.02em;
+}
+
+/* ============================================================
+   Testimonial Card  (.ftb-testimonial)
+   Used in the Testimonials section — 3-column row.
+   ============================================================ */
+.ftb-testimonial {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 2rem;
+  background: var(--ftb-white);
+  border-radius: var(--ftb-radius);
+  box-shadow: var(--ftb-shadow);
+  border-top: 4px solid var(--ftb-primary);
+}
+
+.ftb-testimonial__stars {
+  display: flex;
+  gap: 3px;
+  color: var(--ftb-gold);
+  font-size: 0.9rem;
+}
+
+.ftb-testimonial__star--empty {
+  color: var(--ftb-border);
+}
+
+.ftb-testimonial__quote {
+  margin: 0;
+  font-style: italic;
+  color: var(--ftb-text-dark);
+  line-height: 1.7;
+}
+
+.ftb-testimonial__quote p {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.ftb-testimonial__author {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: auto;
+}
+
+.ftb-testimonial__author-avatar {
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ftb-primary-light);
+  border-radius: 50%;
+  color: var(--ftb-primary);
+  font-size: 1rem;
+}
+
+.ftb-testimonial__author-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.ftb-testimonial__name {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--ftb-text-dark);
+}
+
+.ftb-testimonial__role {
+  font-size: 0.8rem;
+  color: var(--ftb-text-muted);
+}
+
+/* ============================================================
+   Section backgrounds
+   Applied as Layout Builder section attributes via Canvas AI or
+   inline style — kept here for reference / utility use.
+   ============================================================ */
+.ftb-section--light {
+  background: var(--ftb-light-bg);
+  padding: 4rem 1.5rem;
+}
+
+.ftb-section--white {
+  background: var(--ftb-white);
+  padding: 4rem 1.5rem;
+}
+
+/* ============================================================
+   Responsive adjustments
+   ============================================================ */
+@media (max-width: 900px) {
+  .ftb-benefit {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .ftb-benefit__highlight {
+    display: block;
+    text-align: center;
+  }
+}
+
+@media (max-width: 600px) {
+  .ftb-feature,
+  .ftb-benefit,
+  .ftb-testimonial {
+    padding: 1.25rem;
+  }
+
+  .ftb-feature__icon,
+  .ftb-benefit__icon-wrap {
+    width: 48px;
+    height: 48px;
+    font-size: 1.2rem;
+  }
+}

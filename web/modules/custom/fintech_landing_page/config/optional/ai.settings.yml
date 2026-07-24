@@ -1,0 +1,44 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - ai
+    - ai_provider_anthropic
+prompt_logging: false
+prompt_logging_tags: ''
+request_timeout: 30
+default_providers:
+  chat:
+    provider_id: anthropic
+    model_id: 'claude-3-5-sonnet-20241022'
+  chat_with_tools:
+    provider_id: anthropic
+    model_id: 'claude-3-5-sonnet-20241022'
+  embeddings:
+    provider_id: ''
+    model_id: ''
+  generate_image:
+    provider_id: ''
+    model_id: ''
+  image_classification:
+    provider_id: ''
+    model_id: ''
+  moderation:
+    provider_id: ''
+    model_id: ''
+  speech_to_text:
+    provider_id: ''
+    model_id: ''
+  text_to_speech:
+    provider_id: ''
+    model_id: ''
+  text_to_video:
+    provider_id: ''
+    model_id: ''
+  translate_text:
+    provider_id: ''
+    model_id: ''
+default_vdb_provider: ''
+models: []
+allowed_hosts: []
+allowed_hosts_rewrite_links: false

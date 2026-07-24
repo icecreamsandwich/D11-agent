@@ -1,0 +1,41 @@
+$schema: 'https://git.drupalcode.org/project/sdc/-/raw/1.x/src/metadata.schema.json'
+name: 'FinTech Testimonial Card'
+status: stable
+description: >
+  Testimonial card showing a customer quote, author name, business role,
+  and a 1–5 star rating. Used in the Testimonials section (3-column row).
+  Author names should reflect UAE business culture. Roles should name the
+  specific business type (e.g. Retail, F&B, Logistics).
+category: FinTech
+group: fintech_testimonial_card
+props:
+  type: object
+  properties:
+    quote:
+      type: string
+      title: 'Testimonial Quote'
+      description: 'The customer quote in their own words. 2–4 sentences.'
+      examples:
+        - 'Since switching to this platform, our payment processing time dropped dramatically. Our customers love the seamless checkout experience.'
+    author_name:
+      type: string
+      title: 'Author Name'
+      examples:
+        - 'Ahmed Al-Rashidi'
+        - 'Sara Khalid'
+        - 'Khalid Al-Mansouri'
+    author_role:
+      type: string
+      title: 'Role / Business'
+      examples:
+        - 'Owner, Al-Rashidi Electronics — Dubai'
+        - 'Co-founder, Spice Route Café — Abu Dhabi'
+        - 'Operations Director, FastFreight Logistics — Sharjah'
+    rating:
+      type: integer
+      title: 'Star Rating (1–5)'
+      minimum: 1
+      maximum: 5
+      examples:
+        - 5
+        - 4

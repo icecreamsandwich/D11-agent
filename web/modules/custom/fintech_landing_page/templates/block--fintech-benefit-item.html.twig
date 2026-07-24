@@ -1,0 +1,33 @@
+{#
+/**
+ * @file
+ * Template for the FinTech Benefit Item block.
+ *
+ * Variables:
+ * - icon: Font Awesome CSS class string (e.g. "fa-solid fa-clock").
+ * - title_text: Benefit heading (e.g. "Save Time").
+ * - description: Supporting explanation text.
+ * - highlight: Optional metric callout (e.g. "40% faster processing").
+ * - attributes: HTML attributes for the block wrapper.
+ */
+#}
+{{ attach_library('fintech_landing_page/fintech_page') }}
+{{ attach_library('mahi/fontawesome6') }}
+<div{{ attributes.addClass('ftb-benefit') }}>
+  {% if icon %}
+    <div class="ftb-benefit__icon-wrap" aria-hidden="true">
+      <i class="{{ icon }}"></i>
+    </div>
+  {% endif %}
+  <div class="ftb-benefit__body">
+    {% if title_text %}
+      <h3 class="ftb-benefit__title">{{ title_text }}</h3>
+    {% endif %}
+    {% if description %}
+      <p class="ftb-benefit__description">{{ description }}</p>
+    {% endif %}
+    {% if highlight %}
+      <span class="ftb-benefit__highlight">{{ highlight }}</span>
+    {% endif %}
+  </div>
+</div>

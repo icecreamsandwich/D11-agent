@@ -878,3 +878,9 @@ if (getenv('IS_DDEV_PROJECT') == 'true' && file_exists(__DIR__ . '/settings.ddev
 # if (file_exists($app_root . '/' . $site_path . '/settings.local.php')) {
 #   include $app_root . '/' . $site_path . '/settings.local.php';
 # }
+
+/**
+ * Config sync directory — points to the version-controlled config/sync folder.
+ * The path is relative to the Drupal webroot (web/).
+ */
+$settings['config_sync_directory'] = '../config/sync';

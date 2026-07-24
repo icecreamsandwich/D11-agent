@@ -1,0 +1,27 @@
+/**
+ * @file
+ * D11 Performance Optimizer dashboard styles.
+ */
+
+.d11-perf-dashboard fieldset {
+  margin-bottom: 1.5em;
+}
+
+.d11-perf-dashboard .color-error {
+  color: #c02d28;
+  font-weight: bold;
+}
+
+.d11-perf-dashboard .color-warning {
+  color: #c47f00;
+  font-weight: bold;
+}
+
+.d11-perf-dashboard table {
+  width: 100%;
+}
+
+.d11-perf-dashboard .button--danger {
+  background: #c02d28;
+  color: #fff;
+}

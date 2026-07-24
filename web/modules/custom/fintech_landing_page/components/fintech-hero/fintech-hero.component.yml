@@ -1,0 +1,42 @@
+$schema: 'https://git.drupalcode.org/project/sdc/-/raw/1.x/src/metadata.schema.json'
+name: 'FinTech Hero'
+status: stable
+description: >
+  Full-width hero banner for the UAE FinTech landing page. Use for the main
+  page header with a headline, supporting subtext, and a primary CTA button.
+  Ideal for payment platform introductions targeting UAE small business owners.
+  Renders with a dark overlay and centred content on any background image.
+category: FinTech
+group: site_page_builder_hero_slider
+props:
+  type: object
+  properties:
+    title:
+      type: string
+      title: 'Headline'
+      description: 'Main hero heading. Keep under 8 words. Example: "Simplify Your Payments"'
+      examples:
+        - 'Simplify Your Payments'
+        - 'Accept Payments Anywhere in the UAE'
+    subtitle:
+      type: string
+      title: 'Supporting Text'
+      description: 'One or two sentences expanding the headline — the core value proposition.'
+      examples:
+        - 'Accept multi-currency payments instantly. Secure, simple, and built for UAE small businesses.'
+    button_text:
+      type: string
+      title: 'CTA Button Label'
+      examples:
+        - 'Get Started'
+        - 'Open Free Account'
+    button_link:
+      type: string
+      title: 'CTA Button URL'
+      examples:
+        - '/contact-us'
+        - '#signup'
+    image_url:
+      type: string
+      title: 'Background Image URL'
+      description: 'Optional. Leave blank for solid dark overlay.'

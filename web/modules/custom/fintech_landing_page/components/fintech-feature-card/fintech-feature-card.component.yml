@@ -1,0 +1,38 @@
+$schema: 'https://git.drupalcode.org/project/sdc/-/raw/1.x/src/metadata.schema.json'
+name: 'FinTech Feature Card'
+status: stable
+description: >
+  Card displaying a single platform feature with an icon, title, and short
+  description. Designed for use in a 4-column grid row. Each card highlights
+  one key feature of the payment platform (e.g. Instant Payments, Multi-Currency,
+  Security, Easy Integration). Icons use Font Awesome 6.
+category: FinTech
+group: fintech_feature_card
+props:
+  type: object
+  properties:
+    icon:
+      type: string
+      title: 'Icon CSS Class'
+      description: 'Font Awesome 6 class string.'
+      examples:
+        - 'fa-solid fa-bolt'
+        - 'fa-solid fa-globe'
+        - 'fa-solid fa-shield-halved'
+        - 'fa-solid fa-plug'
+    title:
+      type: string
+      title: 'Feature Title'
+      description: 'Short feature name, 2–4 words.'
+      examples:
+        - 'Instant Payments'
+        - 'Multi-Currency Support'
+        - 'Bank-Grade Security'
+        - 'Easy API Integration'
+    description:
+      type: string
+      title: 'Feature Description'
+      description: 'One or two sentences explaining the feature.'
+      examples:
+        - 'Send and receive payments in real time — no waiting, no delays.'
+        - 'Accept AED, USD, EUR and 30+ currencies with automatic conversion.'

@@ -1,0 +1,14 @@
+name: 'D11 Multilingual'
+type: module
+description: 'Multilingual and multi-country platform architecture for Drupal 11. Provides language-scoped access control, RTL support, and translation workflow helpers.'
+package: 'Custom'
+core_version_requirement: ^11
+dependencies:
+  - drupal:language
+  - drupal:content_translation
+  - drupal:config_translation
+  - drupal:locale
+  - drupal:content_moderation
+  - drupal:workflows
+  - drupal:metatag
+  - drupal:pathauto

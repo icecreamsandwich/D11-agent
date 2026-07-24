@@ -1,0 +1,19 @@
+langcode: en
+status: false
+dependencies:
+  module:
+    - config_split
+id: production
+label: Production
+description: 'Config overrides active only on production environments.'
+weight: 0
+storage: database
+folder: '../config/splits/production'
+graylist:
+  - google_analytics.settings
+  - shield.settings
+graylist_dependents: false
+graylist_skip_equal: true
+blacklist: {  }
+module: {  }
+theme: {  }

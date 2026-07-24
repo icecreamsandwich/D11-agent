@@ -1,0 +1,6 @@
+spacex_launches.settings:
+  title: 'SpaceX launches'
+  description: 'Configure SpaceX launches API settings.'
+  parent: system.admin_config_services
+  route_name: spacex_launches.settings
+  weight: 100

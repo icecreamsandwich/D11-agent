@@ -1,0 +1,226 @@
+# =============================================================================
+# CI/CD pipeline for the D11 project (POC).
+#
+# Pipeline shape:
+#
+#   push / PR
+#      │
+#      ▼
+#   validate ──► phpcs ────┐
+#            ──► phpstan ──┼──► deploy (simulated, push only)
+#            ──► phpunit ──┘
+#
+# The three QA jobs run in PARALLEL after validate passes. The deploy job
+# only runs when every QA job is green — that is the "gate" that stops
+# broken code from reaching an environment.
+# =============================================================================
+name: CI
+
+on:
+  push:
+    branches: [main, feature-agent]
+  pull_request:
+    branches: [main]
+
+env:
+  PHP_VERSION: '8.4'
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Stage 1 — sanity-check the dependency manifest before spending any time
+  # on the heavier jobs. Fails fast on a malformed composer.json.
+  # ---------------------------------------------------------------------------
+  validate:
+    name: Validate composer.json
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          coverage: none
+
+      - name: Validate composer files
+        run: composer validate --no-check-all --no-check-publish
+
+  # ---------------------------------------------------------------------------
+  # Stage 2a — Drupal coding standards (phpcs + drupal/coder).
+  # Scans only web/modules/custom (see phpcs.xml.dist).
+  # ---------------------------------------------------------------------------
+  phpcs:
+    name: Coding standards (phpcs)
+    runs-on: ubuntu-latest
+    needs: validate
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: gd, zip, pdo_sqlite
+          coverage: none
+
+      - name: Cache Composer downloads
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/composer
+          key: composer-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-
+
+      - name: Remove checked-in build artifacts
+        # vendor/ and contrib modules are committed to this repo (without
+        # their .git dirs), which breaks composer's update of dev packages.
+        # CI builds from composer.lock alone, proving the lock file is the
+        # single source of truth for a reproducible build.
+        run: rm -rf vendor web/core web/modules/contrib web/themes/contrib web/profiles/contrib web/libraries
+
+      - name: Install dependencies
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Run phpcs
+        run: vendor/bin/phpcs --report=full
+
+  # ---------------------------------------------------------------------------
+  # Stage 2b — static analysis (phpstan + mglaman/phpstan-drupal).
+  # Finds real bugs (wrong argument counts, unknown methods…) without
+  # executing the code. Config lives in phpstan.neon.dist.
+  # ---------------------------------------------------------------------------
+  phpstan:
+    name: Static analysis (phpstan)
+    runs-on: ubuntu-latest
+    needs: validate
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: gd, zip, pdo_sqlite
+          coverage: none
+
+      - name: Cache Composer downloads
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/composer
+          key: composer-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-
+
+      - name: Remove checked-in build artifacts
+        # vendor/ and contrib modules are committed to this repo (without
+        # their .git dirs), which breaks composer's update of dev packages.
+        # CI builds from composer.lock alone, proving the lock file is the
+        # single source of truth for a reproducible build.
+        run: rm -rf vendor web/core web/modules/contrib web/themes/contrib web/profiles/contrib web/libraries
+
+      - name: Install dependencies
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Run phpstan
+        run: vendor/bin/phpstan analyse --no-progress --memory-limit=1G
+
+  # ---------------------------------------------------------------------------
+  # Stage 2c — unit tests (phpunit, using Drupal core's phpunit config).
+  # Unit tests need no database or installed site, so they are fast and
+  # perfect for CI. Kernel/Functional tests would additionally need a DB
+  # service container (see notes in the repo docs).
+  # ---------------------------------------------------------------------------
+  phpunit:
+    name: Unit tests (phpunit)
+    runs-on: ubuntu-latest
+    needs: validate
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: gd, zip, pdo_sqlite
+          coverage: none
+
+      - name: Cache Composer downloads
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/composer
+          key: composer-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-
+
+      - name: Remove checked-in build artifacts
+        # vendor/ and contrib modules are committed to this repo (without
+        # their .git dirs), which breaks composer's update of dev packages.
+        # CI builds from composer.lock alone, proving the lock file is the
+        # single source of truth for a reproducible build.
+        run: rm -rf vendor web/core web/modules/contrib web/themes/contrib web/profiles/contrib web/libraries
+
+      - name: Install dependencies
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Run unit tests for custom modules
+        run: |
+          UNIT_DIRS=$(find web/modules/custom -type d -path '*tests/src/Unit')
+          echo "Running unit tests in:"
+          echo "$UNIT_DIRS"
+          vendor/bin/phpunit -c web/core/phpunit.xml.dist $UNIT_DIRS
+
+  # ---------------------------------------------------------------------------
+  # Stage 3 — deploy. SIMULATED for this POC: it prints the exact steps that
+  # scripts/deploy.sh performs on a real server. In a real setup this job
+  # would SSH to the server (or call a hosting API) and run that script.
+  #
+  # Note the two gates:
+  #   * needs: [...]        — only runs if every QA job passed
+  #   * if: push event      — PRs never deploy; in production you would
+  #                           tighten this to github.ref == 'refs/heads/main'
+  # ---------------------------------------------------------------------------
+  deploy:
+    name: Deploy (simulated)
+    runs-on: ubuntu-latest
+    needs: [phpcs, phpstan, phpunit]
+    if: github.event_name == 'push'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Simulate deployment
+        run: |
+          echo "All quality gates passed — a real pipeline would now deploy."
+          echo ""
+          echo "On a real server this job would run scripts/deploy.sh, i.e.:"
+          echo "  1. git pull origin main"
+          echo "  2. composer install --no-dev --optimize-autoloader"
+          echo "  3. drush state:set system.maintenance_mode 1"
+          echo "  4. drush updatedb -y"
+          echo "  5. drush config:import -y"
+          echo "  6. drush locale:import (custom .po files)"
+          echo "  7. drush cache:rebuild"
+          echo "  8. cache warm-up (curl per language)"
+          echo "  9. drush state:set system.maintenance_mode 0"
+          echo ""
+          echo "Typical real-world implementations:"
+          echo "  - ssh deploy@server 'cd /var/www/site && ./scripts/deploy.sh'"
+          echo "  - or a hosting-platform push (Acquia/Platform.sh/Pantheon)"
+
+      - name: Build production artifact (demonstration)
+        run: |
+          rm -rf vendor web/core web/modules/contrib web/themes/contrib web/profiles/contrib web/libraries
+          composer install --no-dev --no-interaction --no-progress --prefer-dist
+          tar -czf /tmp/site-build.tar.gz \
+            --exclude='.git' \
+            --exclude='web/sites/*/files' \
+            composer.json composer.lock vendor web config scripts translations
+          ls -lh /tmp/site-build.tar.gz
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: site-build-${{ github.sha }}
+          path: /tmp/site-build.tar.gz
+          retention-days: 3

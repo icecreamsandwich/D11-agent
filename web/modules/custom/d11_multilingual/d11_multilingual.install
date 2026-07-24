@@ -1,0 +1,79 @@
+<?php
+
+/**
+ * @file
+ * Install, update, and uninstall functions for d11_multilingual.
+ */
+
+use Drupal\field\Entity\FieldConfig;
+use Drupal\field\Entity\FieldStorageConfig;
+
+/**
+ * Implements hook_install().
+ *
+ * Creates the field_translator_languages field on the user entity so
+ * site admins can assign specific language codes to translator accounts.
+ */
+function d11_multilingual_install() {
+  // Create field storage for translator language assignments.
+  if (!FieldStorageConfig::loadByName('user', 'field_translator_languages')) {
+    FieldStorageConfig::create([
+      'field_name' => 'field_translator_languages',
+      'entity_type' => 'user',
+      'type' => 'list_string',
+      'cardinality' => -1,
+      'settings' => [
+        'allowed_values' => [
+          'en' => 'English',
+          'fr' => 'French',
+          'de' => 'German',
+          'ar' => 'Arabic',
+        ],
+      ],
+    ])->save();
+  }
+
+  if (!FieldConfig::loadByName('user', 'user', 'field_translator_languages')) {
+    FieldConfig::create([
+      'field_name' => 'field_translator_languages',
+      'entity_type' => 'user',
+      'bundle' => 'user',
+      'label' => 'Translator Languages',
+      'description' => 'Languages this translator is authorised to work with.',
+      'required' => FALSE,
+    ])->save();
+  }
+
+  \Drupal::messenger()->addStatus(t('D11 Multilingual installed. Assign translator languages via user accounts.'));
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function d11_multilingual_uninstall() {
+  $field = FieldConfig::loadByName('user', 'user', 'field_translator_languages');
+  if ($field) {
+    $field->delete();
+  }
+  $storage = FieldStorageConfig::loadByName('user', 'field_translator_languages');
+  if ($storage) {
+    $storage->delete();
+  }
+}
+
+/**
+ * Add allowed_values entry for a new language in field_translator_languages.
+ *
+ * Run this update hook each time a new language is added to the platform.
+ * Example: drush updb after adding Spanish.
+ */
+function d11_multilingual_update_11001() {
+  $storage = FieldStorageConfig::loadByName('user', 'field_translator_languages');
+  if (!$storage) {
+    return;
+  }
+  $settings = $storage->getSettings();
+  $settings['allowed_values']['es'] = 'Spanish';
+  $storage->setSettings($settings);
+  $storage->save();
+}

@@ -1,0 +1,29 @@
+{#
+/**
+ * @file
+ * Template for the four equal columns layout.
+ *
+ * Variables:
+ * - content: Render array with regions keyed by machine name.
+ *   - content.first: First column content.
+ *   - content.second: Second column content.
+ *   - content.third: Third column content.
+ *   - content.fourth: Fourth column content.
+ * - attributes: HTML attributes for the layout wrapper.
+ */
+#}
+{{ attach_library('site_page_builder/page_builder') }}
+<div{{ attributes.addClass('spb-fourcol') }}>
+  <div class="spb-fourcol__col">
+    {{ content.first }}
+  </div>
+  <div class="spb-fourcol__col">
+    {{ content.second }}
+  </div>
+  <div class="spb-fourcol__col">
+    {{ content.third }}
+  </div>
+  <div class="spb-fourcol__col">
+    {{ content.fourth }}
+  </div>
+</div>

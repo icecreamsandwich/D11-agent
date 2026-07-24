@@ -1,0 +1,7 @@
+queue_demo.contact_form:
+  path: '/queue-demo/contact'
+  defaults:
+    _form: 'Drupal\queue_demo\Form\ContactForm'
+    _title: 'Contact Us'
+  requirements:
+    _permission: 'submit queue demo contact form'

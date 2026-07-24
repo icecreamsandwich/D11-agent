@@ -1,0 +1,6 @@
+queue_demo.contact_form:
+  title: 'Contact Us (Queue Demo)'
+  description: 'Submit a contact request processed asynchronously via the Queue API.'
+  route_name: queue_demo.contact_form
+  menu_name: main
+  weight: 50

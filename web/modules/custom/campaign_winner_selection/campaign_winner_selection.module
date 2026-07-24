@@ -51,7 +51,8 @@ function campaign_winner_selection_webform_submission_insert(WebformSubmissionIn
             'field_country' => $coupon[2],
           ]);
           $terms->save();
-        } else {
+        }
+        else {
           \Drupal::logger('campaign_winner_selection')->error('Coupon code @coupon alredy exists', ['@coupon' => $coupon[1]]);
         }
       }
@@ -121,7 +122,8 @@ function campaign_winner_selection_webform_submission_insert(WebformSubmissionIn
           if ($webform_submission->save()) {
             \Drupal::logger('campaign_winner_selection')->notice('Submission successfully added for @name.', ['@name' => $user[0]]);
           }
-        } else {
+        }
+        else {
           \Drupal::logger('campaign_winner_selection')->notice('Submission already exists for @name.', ['@name' => $user[0]]);
         }
       }
@@ -281,7 +283,7 @@ function _campaign_winner_selection_send_email($winner_name, $winner, $coupon_co
                                                                             <table border="0" cellpadding="0" cellspacing="0" width="100%" style=" width: 100%;">
                                                                               <tr>
                                                                                   <td class="colum-td" style="padding-bottom: 0px; width: 100%; vertical-align: middle;" align="center">
-                                                                                    <a href="'.$voucher_url.'" target="_blank"><img width="100" style="width: 100%; display: block;" src="' . $image_path . 'purina-emailer-images/radeem.png" alt=""/></a>
+                                                                                    <a href="' . $voucher_url . '" target="_blank"><img width="100" style="width: 100%; display: block;" src="' . $image_path . 'purina-emailer-images/radeem.png" alt=""/></a>
                                                                                   </td>
                                                                               </tr>
                                                                             </table>
@@ -416,7 +418,8 @@ function _campaign_winner_selection_send_email($winner_name, $winner, $coupon_co
                             </body>
                         </html>';
     $subject = "You've won a voucher code!";
-  } else if ($type == 'winner') {
+  }
+  elseif ($type == 'winner') {
     $message_body = '<!doctype html>
                         <html>
                             <head>
@@ -515,7 +518,7 @@ function _campaign_winner_selection_send_email($winner_name, $winner, $coupon_co
                                                                             <table border="0" cellpadding="0" cellspacing="0" width="100%" style=" width: 100%;">
                                                                               <tr>
                                                                                   <td class="colum-td" style="padding-bottom: 0px; width: 100%; vertical-align: middle;" align="center">
-                                                                                    <a href="'.$voucher_url.'" target="_blank"><img width="100" style="width: 100%; display: block;" src="' . $image_path . 'purina-emailer-images/radeem.png" alt=""/></a>
+                                                                                    <a href="' . $voucher_url . '" target="_blank"><img width="100" style="width: 100%; display: block;" src="' . $image_path . 'purina-emailer-images/radeem.png" alt=""/></a>
                                                                                   </td>
                                                                               </tr>
                                                                             </table>
@@ -661,15 +664,15 @@ function _campaign_winner_selection_send_email($winner_name, $winner, $coupon_co
   $headers = "From: ask@platformsh.site\r\n";
   $headers .= "MIME-Version: 1.0\r\n";
   $headers .= "Content-Type: text/html; charset=ISO-8859-1\r\n";
-  $result  = mail($to, $subject, $message_body, $headers);
+  $result = mail($to, $subject, $message_body, $headers);
 
   // $langcode = \Drupal::currentUser()->getPreferredLangcode();
   // $send = TRUE;
   // $result = $mailManager->mail($module, $key, $to, $langcode, $params, NULL, $send);
-
   if ($result) {
     \Drupal::logger('campaign_winner_selection')->error('There was a problem sending the email.');
-  } else {
+  }
+  else {
     \Drupal::logger('campaign_winner_selection')->notice('Email sent to ' . $to);
   }
 }
@@ -717,7 +720,8 @@ function _campaign_winner_selection_get_winners($campaign, $event_type, $country
       // Update winners with coupon codes selected.
       return _campaign_winner_selection_update_winners($selected_submissions, $event_type, $coupon_codes);
     }
-  } else {
+  }
+  else {
     return _campaign_winner_selection_update_winners($selected_submissions, $event_type, '');
   }
 }
@@ -768,7 +772,7 @@ function _campaign_winner_selection_get_winner_submissions($campaign, $event_typ
     return ($submission->getElementData('winner') == 1 &&
       $submission->getElementData('event_type') == $event_type &&
       $submission->getElementData('country') == $country &&
-      $submission->getElementData('email_sent') != 1 
+      $submission->getElementData('email_sent') != 1
     );
   });
 }
@@ -801,9 +805,10 @@ function _campaign_winner_selection_update_winners(array $submissions, $event_ty
   foreach (array_values($submissions) as $key => $submission) {
     $data = $submission->getData();
     $country = $data['country'];
-    if($country == 'UAE'){
+    if ($country == 'UAE') {
       $voucher_url = 'https://www.amazon.ae/s?k=purina&crid=LEE1T4Y7IBL0&sprefix=purina%2Caps%2C350&ref=nb_sb_ss_ts-doa-p_2_6';
-    }else{
+    }
+    else {
       $voucher_url = 'https://www.amazon.sa/s?k=Purina&crid=O37M6U034I93&sprefix=purina%2Caps%2C209&ref=nb_sb_noss_1';
     }
     $data['winner'] = 1;
@@ -816,21 +821,20 @@ function _campaign_winner_selection_update_winners(array $submissions, $event_ty
   return count($submissions) ?? [];
 }
 
-
 /**
- * Updates the winner's email status
+ * Updates the winner's email status.
  *
- * @param array $submissions
- *   An array of webform submission entities.
+ * @param \Drupal\webform\WebformSubmissionInterface $submission
+ *   The webform submission entity to update.
  */
 function _campaign_winner_selection_update_winners_email(WebformSubmissionInterface $submission) {
-    $data = $submission->getData();
-    $data['email_sent'] = 1;
-    $submission->setData($data);
-    if($submission->save()){
-      return TRUE;
-    }
-    
+  $data = $submission->getData();
+  $data['email_sent'] = 1;
+  $submission->setData($data);
+  if ($submission->save()) {
+    return TRUE;
+  }
+
 }
 
 /**
@@ -853,9 +857,9 @@ function _campaign_winner_selection_get_coupon_codes($count, $country) {
   // Filter terms where field_selected is not equal to 1.
   $filtered_terms = array_filter($terms, function ($term) use ($field_name, $field_country, $country) {
     $term_entity = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load($term->tid);
-    if ($term_entity && !$term_entity->get($field_name)->isEmpty() && !$term_entity->get($field_country)->isEmpty()){
+    if ($term_entity && !$term_entity->get($field_name)->isEmpty() && !$term_entity->get($field_country)->isEmpty()) {
       return ($term_entity->get($field_name)->value != 1
-     && $term_entity->get($field_country)->value == $country);
+      && $term_entity->get($field_country)->value == $country);
     }
   });
 

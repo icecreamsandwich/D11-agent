@@ -1,0 +1,20 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - config_split
+id: development
+label: Development
+description: 'Config overrides active only on development environments.'
+weight: 0
+storage: database
+folder: '../config/splits/development'
+graylist:
+  - devel.settings
+  - devel_generate.settings
+  - shield.settings
+graylist_dependents: false
+graylist_skip_equal: true
+blacklist: {  }
+module: {  }
+theme: {  }

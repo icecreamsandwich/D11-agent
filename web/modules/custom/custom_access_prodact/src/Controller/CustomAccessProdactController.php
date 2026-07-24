@@ -24,13 +24,18 @@ final class CustomAccessProdactController extends ControllerBase {
     return $build;
   }
 
+  /**
+   * Page restricted to users with the captain role.
+   */
   public function captainPage() {
     return [
       '#markup' => $this->t('Welcome, Captain!'),
     ];
   }
 
-
+  /**
+   * Renders the custom themed page.
+   */
   public function content() {
     return [
       '#theme' => 'custom_page',

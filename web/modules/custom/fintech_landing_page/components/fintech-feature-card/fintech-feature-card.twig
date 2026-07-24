@@ -1,0 +1,26 @@
+{#
+/**
+ * @file
+ * SDC template for the FinTech Feature Card component.
+ *
+ * Props:
+ * - icon: Font Awesome 6 class string (e.g. "fa-solid fa-bolt").
+ * - title: Feature name heading.
+ * - description: Short feature description.
+ */
+#}
+{{ attach_library('fintech_landing_page/fintech_page') }}
+{{ attach_library('mahi/fontawesome6') }}
+<div {{ attributes.addClass('ftb-feature') }}>
+  {% if icon %}
+    <div class="ftb-feature__icon" aria-hidden="true">
+      <i class="{{ icon }}"></i>
+    </div>
+  {% endif %}
+  {% if title %}
+    <h3 class="ftb-feature__title">{{ title }}</h3>
+  {% endif %}
+  {% if description %}
+    <p class="ftb-feature__description">{{ description }}</p>
+  {% endif %}
+</div>

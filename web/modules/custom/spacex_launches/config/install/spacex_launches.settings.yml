@@ -1,0 +1,3 @@
+cache_ttl_minutes: 15
+results_limit: 5
+cron_refresh_interval_minutes: 15

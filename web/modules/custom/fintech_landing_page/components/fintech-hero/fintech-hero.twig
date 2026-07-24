@@ -1,0 +1,28 @@
+{#
+/**
+ * @file
+ * SDC template for the FinTech Hero component.
+ *
+ * Props:
+ * - title: Main hero heading.
+ * - subtitle: Supporting value proposition text.
+ * - button_text: CTA button label.
+ * - button_link: CTA button URL.
+ * - image_url: Optional background image URL.
+ */
+#}
+{{ attach_library('fintech_landing_page/fintech_page') }}
+<div {{ attributes.addClass('ftb-hero') }}{% if image_url %} style="background-image: url('{{ image_url }}');"{% endif %}>
+  <div class="ftb-hero__overlay"></div>
+  <div class="ftb-hero__content">
+    {% if title %}
+      <h1 class="ftb-hero__title">{{ title }}</h1>
+    {% endif %}
+    {% if subtitle %}
+      <p class="ftb-hero__subtitle">{{ subtitle }}</p>
+    {% endif %}
+    {% if button_text and button_link %}
+      <a href="{{ button_link }}" class="ftb-hero__cta">{{ button_text }}</a>
+    {% endif %}
+  </div>
+</div>

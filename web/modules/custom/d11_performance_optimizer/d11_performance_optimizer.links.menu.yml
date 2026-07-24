@@ -1,0 +1,13 @@
+d11_performance_optimizer.dashboard:
+  title: 'Performance Optimizer'
+  description: 'View performance metrics, SEO issues, and recommendations.'
+  route_name: d11_performance_optimizer.dashboard
+  parent: system.admin_reports
+  weight: 10
+
+d11_performance_optimizer.settings:
+  title: 'Performance Optimizer'
+  description: 'Configure the performance optimizer module.'
+  route_name: d11_performance_optimizer.settings
+  parent: system.admin_config_system
+  weight: 10

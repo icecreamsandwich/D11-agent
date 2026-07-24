@@ -103,7 +103,7 @@ class ConfirmForm extends ConfirmFormBase {
     foreach ($winner_submissions as $submission) {
       $first_name = $submission->getElementData('first_name');
       $last_name = $submission->getElementData('last_name');
-      $winner_name  = $first_name." ".$last_name;
+      $winner_name = $first_name . " " . $last_name;
       $email = $submission->getElementData('email');
       $coupon_code = $submission->getElementData('voucher_code');
       $voucher_url = $submission->getElementData('voucher_url');
@@ -114,12 +114,12 @@ class ConfirmForm extends ConfirmFormBase {
       else {
         _campaign_winner_selection_send_email($winner_name, $email, '', 'winner', $voucher_url);
       }
-      //Update the email send status
-      if(_campaign_winner_selection_update_winners_email($submission)){
+      // Update the email send status.
+      if (_campaign_winner_selection_update_winners_email($submission)) {
         \Drupal::logger('campaign_winner_selection')->notice('Submission email status updated succesfully');
       }
     }
-    
+
     // Clear the tempstore.
     \Drupal::service('tempstore.private')->get('campaign_winner_selection')->delete('winners');
 

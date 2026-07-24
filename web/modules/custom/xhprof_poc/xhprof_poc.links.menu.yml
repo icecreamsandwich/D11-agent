@@ -1,0 +1,5 @@
+xhprof_poc.dashboard:
+  title: 'XHProf POC profiler'
+  description: 'Per-section page timings and XHProf function profiles.'
+  parent: system.admin_reports
+  route_name: xhprof_poc.dashboard

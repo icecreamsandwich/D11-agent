@@ -1,0 +1,9 @@
+services:
+  d11_multilingual.language_event_subscriber:
+    class: Drupal\d11_multilingual\EventSubscriber\LanguageRedirectSubscriber
+    arguments:
+      - '@language_manager'
+      - '@current_user'
+      - '@path.current'
+    tags:
+      - { name: event_subscriber }

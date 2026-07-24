@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ruleset name="d11-custom">
+  <description>Drupal coding standards for custom code.</description>
+
+  <!-- Scan only our own code, never core/contrib. -->
+  <file>web/modules/custom</file>
+
+  <arg name="extensions" value="php,module,install,inc,theme"/>
+  <arg name="colors"/>
+  <arg value="p"/>
+
+  <rule ref="Drupal"/>
+  <rule ref="DrupalPractice"/>
+
+  <!-- Warnings are reported but do not fail the build; errors do.
+       Common onboarding setting for legacy code — tighten later by
+       removing this once warnings are cleaned up. -->
+  <config name="ignore_warnings_on_exit" value="1"/>
+
+  <exclude-pattern>*/node_modules/*</exclude-pattern>
+  <exclude-pattern>*/vendor/*</exclude-pattern>
+</ruleset>

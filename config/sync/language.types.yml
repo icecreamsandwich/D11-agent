@@ -1,0 +1,23 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - language
+id: language_interface
+label: 'User interface text'
+description: 'Order of language detection methods for user interface text. If a translation of user interface text is available in the detected language, it will be displayed.'
+locked: true
+weight: -10
+negotiation:
+  enabled:
+    language-url: -8
+    language-session: -6
+    language-user: -4
+    language-browser: -2
+    language-selected: 12
+  method_weights:
+    language-url: -8
+    language-session: -6
+    language-user: -4
+    language-browser: -2
+    language-selected: 12

@@ -1,0 +1,52 @@
+{% if error_message %}
+  <div class="messages messages--error">
+    {{ error_message }}
+  </div>
+{% endif %}
+
+<div class="spacex-launches-page">
+  <p>
+    <strong>{{ 'Last fetched:'|t }}</strong>
+    {{ last_fetched ?: 'Not available yet.'|t }}
+  </p>
+
+  {% if refresh_url %}
+    <p><a href="{{ refresh_url }}">{{ 'Refresh now'|t }}</a></p>
+  {% endif %}
+
+  {% if launches %}
+    <div class="spacex-launches-list">
+      {% for launch in launches %}
+        <article class="spacex-launch">
+          <h2>{{ launch.name }}</h2>
+
+          {% if launch.image_url %}
+            <div class="spacex-launch__image">
+              <img src="{{ launch.image_url }}" alt="{{ launch.image_alt }}">
+            </div>
+          {% endif %}
+
+          <ul>
+            <li><strong>{{ 'Rocket:'|t }}</strong> {{ launch.rocket_name }}</li>
+            <li><strong>{{ 'Mission:'|t }}</strong> {{ launch.mission_name }}</li>
+            <li><strong>{{ 'Mission type:'|t }}</strong> {{ launch.mission_type ?: 'N/A'|t }}</li>
+            <li><strong>{{ 'Launch date:'|t }}</strong> {{ launch.launch_date }}</li>
+            <li><strong>{{ 'Provider:'|t }}</strong> {{ launch.launch_provider ?: 'N/A'|t }}</li>
+            <li><strong>{{ 'Status:'|t }}</strong> {{ launch.status ?: 'N/A'|t }}</li>
+            <li><strong>{{ 'Location:'|t }}</strong> {{ launch.location ?: 'N/A'|t }}</li>
+            <li><strong>{{ 'Pad:'|t }}</strong> {{ launch.pad_name ?: 'N/A'|t }}</li>
+            <li><strong>{{ 'Country:'|t }}</strong> {{ launch.country ?: 'N/A'|t }}</li>
+          </ul>
+
+          {% if launch.mission_description %}
+            <p>{{ launch.mission_description }}</p>
+          {% endif %}
+        </article>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p>{{ 'No launch data is available right now.'|t }}</p>
+  {% endif %}
+
+  {{ pager }}
+</div>

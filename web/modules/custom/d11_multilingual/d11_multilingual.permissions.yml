@@ -1,0 +1,15 @@
+manage translation jobs:
+  title: 'Manage translation jobs'
+  description: 'Create, assign, and review TMGMT translation jobs.'
+
+import po files:
+  title: 'Import .po translation files'
+  description: 'Import interface translation files via the locale admin UI.'
+
+export po files:
+  title: 'Export .po translation files'
+  description: 'Export interface strings for offline translation.'
+
+view translation dashboard:
+  title: 'View translation dashboard'
+  description: 'Access the translation overview dashboard.'

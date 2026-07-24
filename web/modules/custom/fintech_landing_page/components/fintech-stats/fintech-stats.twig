@@ -1,0 +1,26 @@
+{#
+/**
+ * @file
+ * SDC template for the FinTech Stats Counter component.
+ *
+ * Props:
+ * - icon: Font Awesome 6 class string (e.g. "fa-solid fa-rocket").
+ * - number: Metric value including suffix (e.g. "60%", "10,000+").
+ * - counter_label: Short description of the metric (e.g. "Faster Payments").
+ */
+#}
+{{ attach_library('fintech_landing_page/fintech_page') }}
+{{ attach_library('mahi/fontawesome6') }}
+<div {{ attributes.addClass('ftb-stats') }}>
+  {% if icon %}
+    <div class="ftb-stats__icon-wrap" aria-hidden="true">
+      <i class="{{ icon }}"></i>
+    </div>
+  {% endif %}
+  {% if number %}
+    <div class="ftb-stats__number">{{ number }}</div>
+  {% endif %}
+  {% if counter_label %}
+    <div class="ftb-stats__label">{{ counter_label }}</div>
+  {% endif %}
+</div>

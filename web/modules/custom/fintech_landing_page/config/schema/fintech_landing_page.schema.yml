@@ -1,0 +1,52 @@
+# Schema for FinTech Landing Page block plugin configuration.
+# Each entry maps to one Block plugin's defaultConfiguration() keys so that
+# Drupal's config schema validator recognises them when blocks are saved via
+# Layout Builder (Drupal canvas).
+
+block.settings.fintech_feature_card:
+  type: block_settings
+  label: 'FinTech Feature Card block settings'
+  mapping:
+    icon:
+      type: string
+      label: 'Icon CSS Class'
+    title:
+      type: string
+      label: 'Feature Title'
+    description:
+      type: string
+      label: 'Feature Description'
+
+block.settings.fintech_benefit_item:
+  type: block_settings
+  label: 'FinTech Benefit Item block settings'
+  mapping:
+    icon:
+      type: string
+      label: 'Icon CSS Class'
+    title:
+      type: string
+      label: 'Benefit Title'
+    description:
+      type: string
+      label: 'Benefit Description'
+    highlight:
+      type: string
+      label: 'Highlight Metric'
+
+block.settings.fintech_testimonial_card:
+  type: block_settings
+  label: 'FinTech Testimonial Card block settings'
+  mapping:
+    quote:
+      type: string
+      label: 'Testimonial Quote'
+    author_name:
+      type: string
+      label: 'Author Name'
+    author_role:
+      type: string
+      label: 'Author Role / Business'
+    rating:
+      type: integer
+      label: 'Star Rating (1-5)'

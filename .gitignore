@@ -63,3 +63,8 @@
 /drush
 /drupal.phar
 /drupal
+
+/.claude
+/backups
+# macOS Finder metadata
+.DS_Store
