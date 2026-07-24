@@ -1,0 +1,220 @@
+<?php
+
+/**
+ * @file
+ * Implements every major Views hook for experimentation.
+ *
+ * All runtime hooks are guarded to the "views_hooks_experiment" view and
+ * print a status message on screen so each hook invocation is visible when
+ * visiting /views-hooks-experiment. Build-time hooks (hook_views_data and
+ * hook_views_data_alter) fire on cache rebuild and log to watchdog instead.
+ */
+
+declare(strict_types=1);
+
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\views\Plugin\views\query\QueryPluginBase;
+use Drupal\views\Plugin\views\query\Sql;
+use Drupal\views\ViewExecutable;
+
+/**
+ * The machine name of the demo view created on install.
+ */
+const VIEWS_HOOKS_EXPERIMENT_VIEW_ID = 'views_hooks_experiment';
+
+/**
+ * Implements hook_views_data().
+ *
+ * Exposes the custom {views_hooks_experiment_log} table to Views as a base
+ * table. This is what allows the auto-created view to exist at all: without
+ * this hook Views would know nothing about the table.
+ *
+ * Fires when the views data cache is rebuilt (e.g. after `drush cr`), not on
+ * every page load. Check watchdog (admin/reports/dblog) for the log entry.
+ */
+function views_hooks_experiment_views_data(): array {
+  \Drupal::logger('views_hooks_experiment')->notice('hook_views_data() fired: exposing the views_hooks_experiment_log table.');
+
+  $data = [];
+
+  $data['views_hooks_experiment_log']['table']['group'] = t('Views Hooks Experiment');
+  $data['views_hooks_experiment_log']['table']['base'] = [
+    'field' => 'id',
+    'title' => t('Views Hooks Experiment log'),
+    'help' => t('Custom table exposed to Views via hook_views_data().'),
+  ];
+
+  $data['views_hooks_experiment_log']['id'] = [
+    'title' => t('ID'),
+    'help' => t('The primary key of the log entry.'),
+    'field' => ['id' => 'numeric'],
+    'filter' => ['id' => 'numeric'],
+    'sort' => ['id' => 'standard'],
+    'argument' => ['id' => 'numeric'],
+  ];
+
+  $data['views_hooks_experiment_log']['message'] = [
+    'title' => t('Message'),
+    'help' => t('The log message text.'),
+    'field' => ['id' => 'standard'],
+    'filter' => ['id' => 'string'],
+    'sort' => ['id' => 'standard'],
+    'argument' => ['id' => 'string'],
+  ];
+
+  $data['views_hooks_experiment_log']['severity'] = [
+    'title' => t('Severity'),
+    'help' => t('Severity keyword of the log entry.'),
+    'field' => ['id' => 'standard'],
+    'filter' => ['id' => 'string'],
+    'sort' => ['id' => 'standard'],
+    'argument' => ['id' => 'string'],
+  ];
+
+  $data['views_hooks_experiment_log']['created'] = [
+    'title' => t('Created'),
+    'help' => t('Timestamp when the log entry was created.'),
+    'field' => ['id' => 'date'],
+    'filter' => ['id' => 'date'],
+    'sort' => ['id' => 'date'],
+  ];
+
+  return $data;
+}
+
+/**
+ * Implements hook_views_data_alter().
+ *
+ * Modifies Views metadata defined by other modules. Here it relabels the
+ * node title field: open any node-based view in the Views UI and the field
+ * picker will show the altered label, proving the hook ran.
+ */
+function views_hooks_experiment_views_data_alter(array &$data): void {
+  \Drupal::logger('views_hooks_experiment')->notice('hook_views_data_alter() fired.');
+
+  if (isset($data['node_field_data']['title'])) {
+    $data['node_field_data']['title']['title'] = t('Title (altered by Views Hooks Experiment)');
+    $data['node_field_data']['title']['help'] = t('This help text was changed via hook_views_data_alter().');
+  }
+
+  // Also tweak our own table's metadata.
+  if (isset($data['views_hooks_experiment_log']['severity'])) {
+    $data['views_hooks_experiment_log']['severity']['title'] = t('Severity (relabelled in hook_views_data_alter)');
+  }
+}
+
+/**
+ * Implements hook_views_pre_view().
+ *
+ * Runs before the view is built. Ideal for changing arguments, the display,
+ * or pager settings. Here it forces the pager to 5 items per page (the saved
+ * view config says 10), so seeing 5 rows per page proves the hook ran.
+ */
+function views_hooks_experiment_views_pre_view(ViewExecutable $view, string $display_id, array &$args): void {
+  if ($view->id() !== VIEWS_HOOKS_EXPERIMENT_VIEW_ID) {
+    return;
+  }
+  $view->setItemsPerPage(5);
+  \Drupal::messenger()->addStatus(t('1. hook_views_pre_view(): display "@display" — items per page forced from 10 to 5.', ['@display' => $display_id]));
+}
+
+/**
+ * Implements hook_views_query_alter().
+ *
+ * Alters the generated SQL query object before it is compiled. Here it adds
+ * a WHERE condition that excludes rows with severity "hidden". The install
+ * hook seeded one such row ("SECRET row…"); it never appearing in the view
+ * proves the hook ran.
+ */
+function views_hooks_experiment_views_query_alter(ViewExecutable $view, QueryPluginBase $query): void {
+  if ($view->id() !== VIEWS_HOOKS_EXPERIMENT_VIEW_ID || !$query instanceof Sql) {
+    return;
+  }
+  $query->addWhere(0, 'views_hooks_experiment_log.severity', 'hidden', '!=');
+  \Drupal::messenger()->addStatus(t('2. hook_views_query_alter(): added WHERE severity != "hidden" — the seeded SECRET row is excluded.'));
+}
+
+/**
+ * Implements hook_views_pre_execute().
+ *
+ * Runs after the query is built but before it is executed against the
+ * database. Here it prints the final SQL so you can see the condition that
+ * hook_views_query_alter() injected.
+ */
+function views_hooks_experiment_views_pre_execute(ViewExecutable $view): void {
+  if ($view->id() !== VIEWS_HOOKS_EXPERIMENT_VIEW_ID) {
+    return;
+  }
+  $sql = isset($view->build_info['query']) ? (string) $view->build_info['query'] : '';
+  \Drupal::messenger()->addStatus(t('3. hook_views_pre_execute(): final SQL — @sql', ['@sql' => $sql]));
+}
+
+/**
+ * Implements hook_views_post_execute().
+ *
+ * Runs immediately after the database query, with the raw result set
+ * available in $view->result. Here it reports the row count and tags each
+ * raw result row with a marker property that hook_views_pre_render() reads.
+ */
+function views_hooks_experiment_views_post_execute(ViewExecutable $view): void {
+  if ($view->id() !== VIEWS_HOOKS_EXPERIMENT_VIEW_ID) {
+    return;
+  }
+  foreach ($view->result as $row) {
+    $row->views_hooks_experiment_marker = TRUE;
+  }
+  \Drupal::messenger()->addStatus(t('4. hook_views_post_execute(): @count raw rows returned; each tagged with a marker property.', ['@count' => count($view->result)]));
+}
+
+/**
+ * Implements hook_views_pre_render().
+ *
+ * Runs after execution but before rendering. Here it rewrites the view
+ * title and appends a suffix to every Message value — the suffix visible in
+ * each row proves the hook ran and that the post_execute marker survived.
+ */
+function views_hooks_experiment_views_pre_render(ViewExecutable $view): void {
+  if ($view->id() !== VIEWS_HOOKS_EXPERIMENT_VIEW_ID) {
+    return;
+  }
+
+  $view->setTitle(t('Views Hooks Experiment (title set in hook_views_pre_render)'));
+
+  if (isset($view->field['message'])) {
+    $alias = $view->field['message']->field_alias;
+    foreach ($view->result as $row) {
+      if (isset($row->{$alias})) {
+        $suffix = !empty($row->views_hooks_experiment_marker)
+          ? ' — [altered in pre_render, marker from post_execute found]'
+          : ' — [altered in pre_render]';
+        $row->{$alias} .= $suffix;
+      }
+    }
+  }
+
+  \Drupal::messenger()->addStatus(t('5. hook_views_pre_render(): view title replaced and every Message value suffixed.'));
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter() for views_exposed_form.
+ *
+ * Customizes the exposed filter form. Here it adds a placeholder and
+ * description to the "Message contains" filter and renames the submit
+ * button — all visible above the view.
+ */
+function views_hooks_experiment_form_views_exposed_form_alter(array &$form, FormStateInterface $form_state, string $form_id): void {
+  $view = $form_state->get('view');
+  if (!$view instanceof ViewExecutable || $view->id() !== VIEWS_HOOKS_EXPERIMENT_VIEW_ID) {
+    return;
+  }
+
+  if (isset($form['message'])) {
+    $form['message']['#attributes']['placeholder'] = t('Type to filter messages…');
+    $form['message']['#description'] = t('Placeholder and this description added via hook_form_views_exposed_form_alter().');
+  }
+  if (isset($form['actions']['submit'])) {
+    $form['actions']['submit']['#value'] = t('Filter (renamed via exposed form alter)');
+  }
+
+  \Drupal::messenger()->addStatus(t('6. hook_form_views_exposed_form_alter(): placeholder, description and submit label customized.'));
+}

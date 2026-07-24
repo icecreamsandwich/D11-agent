@@ -1,0 +1,7 @@
+name: 'Views Hooks Experiment'
+type: module
+description: 'Creates a demo view automatically on install and implements every major Views hook for experimentation.'
+package: Custom
+core_version_requirement: ^10 || ^11
+dependencies:
+  - drupal:views
